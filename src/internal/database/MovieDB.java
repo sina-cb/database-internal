@@ -58,6 +58,10 @@ class MovieDB {
 		movie.project("year title title year length title").print();
 		movie.project("title").print();
 		
+		//SINA
+		movie.project("title").print();
+		movie.project("title").print();
+		
 		/*Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };
 		out.println();
