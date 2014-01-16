@@ -8,7 +8,9 @@ package internal.database;
 
 import java.io.*;
 import java.lang.reflect.Array;
+
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
@@ -16,6 +18,7 @@ import java.util.*;
  * Buckets are allocated and stored in a hash table and are referenced using
  * directory dir.
  */
+@SuppressWarnings("all")
 public class ExtHash<K, V> extends AbstractMap<K, V> implements Serializable,
 		Cloneable, Map<K, V> {
 	/**

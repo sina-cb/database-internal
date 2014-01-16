@@ -8,13 +8,16 @@ package internal.database;
 
 import java.io.*;
 import java.lang.reflect.Array;
+
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
  * This class provides hash maps that use the Linear Hashing algorithm. A hash
  * table is created that is an array of buckets.
  */
+@SuppressWarnings("all")
 public class LinHash<K, V> extends AbstractMap<K, V> implements Serializable,
 		Cloneable, Map<K, V> {
 	/**

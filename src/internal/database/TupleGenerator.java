@@ -9,6 +9,7 @@ package internal.database;
 /*******************************************************************************
  * This interface can be used for generating tuples to populate a database.
  */
+@SuppressWarnings("all")
 public interface TupleGenerator {
 	/***************************************************************************
 	 * Add the relational schema for a given table. Do this for all tables and

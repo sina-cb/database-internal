@@ -7,7 +7,9 @@ package internal.database;
  */
 
 import java.io.*;
+
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
@@ -15,6 +17,7 @@ import java.util.*;
  * table) to be stored in a random access file. This implementation requires
  * that each tuple be packed into a fixed length byte array.
  */
+@SuppressWarnings("all")
 public class FileList extends AbstractList<Comparable[]> implements
 		List<Comparable[]>, RandomAccess {
 	/**

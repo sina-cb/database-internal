@@ -54,8 +54,10 @@ class MovieDB {
 		movie.insert(film2);
 		movie.insert(film3);
 		movie.print();
-
-		Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
+		
+		movie.project("year title title year length title").print();
+		
+		/*Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };
 		out.println();
 		cinema.insert(film2);
@@ -110,6 +112,7 @@ class MovieDB {
 		out.println();
 		Table t_join = movie.join("studioName == name", studio);
 		t_join.print();
+		*/
 	} // main
 
 } // MovieDB class

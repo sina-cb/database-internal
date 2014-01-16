@@ -8,7 +8,9 @@ package internal.database;
 
 import java.io.*;
 import java.lang.reflect.Array;
+
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
@@ -16,6 +18,7 @@ import java.util.*;
  * structures that provide efficient access for both point queries and range
  * queries.
  */
+@SuppressWarnings("all")
 public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		implements Serializable, Cloneable, SortedMap<K, V> {
 	/**

@@ -14,6 +14,7 @@ import java.util.*;
  * randomly generated values that satisfy the following integrity constraints:
  * domain, primary keys and foreign key constraints.
  */
+@SuppressWarnings("all")
 public class TupleGeneratorImpl implements TupleGenerator {
 	/**
 	 * Counter for table numbers

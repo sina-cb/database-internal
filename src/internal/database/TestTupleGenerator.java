@@ -14,6 +14,7 @@ import static java.lang.System.out;
  * 3.6). The primary keys (see figure 3.6) and foreign keys (see example 3.2.2)
  * are as given in the textbook.
  */
+@SuppressWarnings("all")
 public class TestTupleGenerator {
 	/***************************************************************************
 	 * The main method is the driver for TestGenerator.

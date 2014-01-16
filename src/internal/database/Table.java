@@ -7,8 +7,10 @@ package internal.database;
  */
 
 import java.io.Serializable;
+
 import static java.lang.Boolean.*;
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
@@ -18,6 +20,7 @@ import java.util.*;
  * manipulation operator is also provided. Missing are update and delete data
  * manipulation operators.
  */
+@SuppressWarnings({ "rawtypes", "serial" }) 
 public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
@@ -127,8 +130,39 @@ public class Table implements Serializable, Cloneable {
 		String[] pAttribute = attributeList.split(" ");
 		int[] colPos = match(pAttribute);
 		Class[] colDomain = extractDom(domain, colPos);
-		String[] newKey = null; // FIX: original key if included, otherwise all
-		// atributes
+		String[] newKey = null; 
+		
+		for (String s : this.key){
+			if (!Arrays.asList(pAttribute).contains(s)){
+				newKey = new String[1];
+				break;
+			}
+		}
+		
+		if (newKey == null){
+			newKey = Arrays.copyOf(this.key, this.key.length); 
+		}else{
+			newKey = Arrays.copyOf(pAttribute, pAttribute.length);	
+		}
+		
+		// Checks the key elements in order to see if it differs from the new Attributes or not 
+		/*if (this.key.length > pAttribute.length){
+			newKey = Arrays.copyOf(pAttribute, pAttribute.length);
+		}else{
+			boolean testKey = false;
+			for (int i = 0; i < this.key.length; i++){
+				if (this.key[i].compareTo(pAttribute[i]) != 0){
+					testKey = true;
+				}
+			}
+			
+			if (testKey){
+				newKey = Arrays.copyOf(pAttribute, pAttribute.length);
+			}else{
+				newKey = Arrays.copyOf(this.key, this.key.length);
+			}
+		}*/
+		
 		Table result = new Table(name + count++, pAttribute, colDomain, newKey);
 
 		for (Comparable[] tup : tuples) {
@@ -590,9 +624,11 @@ public class Table implements Serializable, Cloneable {
 	private static Comparable[] extractTup(Comparable[] group, int[] colPos) {
 		Comparable[] tup = new Comparable[colPos.length];
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		int tupIndex = 0;
+		for (Integer i : colPos){
+			tup[tupIndex] = group[i];
+			tupIndex++;
+		}
 
 		return tup;
 	} // extractTup
