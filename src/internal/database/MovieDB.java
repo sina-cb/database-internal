@@ -55,6 +55,10 @@ class MovieDB {
 		movie.insert(film3);
 		movie.print();
 		
+		/*
+		 * My Comments SINA
+		 */
+		
 		movie.project("year title title year length title").print();
 		movie.project("title").print();
 
