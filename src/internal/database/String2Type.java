@@ -7,6 +7,7 @@ package internal.database;
  */
 
 import static java.lang.System.out;
+
 import java.lang.reflect.*;
 
 /*******************************************************************************
@@ -14,6 +15,7 @@ import java.lang.reflect.*;
  * that has a constructor which takes a single String as an argument (e.g.,
  * Integer (String s)).
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class String2Type {
 	/***************************************************************************
 	 * Construct an object of type T from the String representation of its
@@ -26,7 +28,6 @@ class String2Type {
 	 *            the String representation of the value (e.g., "7")
 	 * @return the value as a type T object
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T extends Comparable<T>> T cons(Class<T> clazz, String value) {
 		Class[] argumentTypes = new Class[] { String.class };
 		Object[] arguments = new Object[] { value };

@@ -145,24 +145,6 @@ public class Table implements Serializable, Cloneable {
 			newKey = Arrays.copyOf(pAttribute, pAttribute.length);	
 		}
 		
-		// Checks the key elements in order to see if it differs from the new Attributes or not 
-		/*if (this.key.length > pAttribute.length){
-			newKey = Arrays.copyOf(pAttribute, pAttribute.length);
-		}else{
-			boolean testKey = false;
-			for (int i = 0; i < this.key.length; i++){
-				if (this.key[i].compareTo(pAttribute[i]) != 0){
-					testKey = true;
-				}
-			}
-			
-			if (testKey){
-				newKey = Arrays.copyOf(pAttribute, pAttribute.length);
-			}else{
-				newKey = Arrays.copyOf(this.key, this.key.length);
-			}
-		}*/
-		
 		Table result = new Table(name + count++, pAttribute, colDomain, newKey);
 
 		for (Comparable[] tup : tuples) {
@@ -171,7 +153,7 @@ public class Table implements Serializable, Cloneable {
 
 		return result;
 	} // project
-
+	
 /***************************************************************************
 	 * Select the tuples satisfying the given condition. A condition is written
 	 * as infix expression consists of 6 comparison operators: "==", "!=", "<",

@@ -13,6 +13,7 @@ import static java.lang.System.out;
  * other databases. See "Database Systems: The Complete Book", second edition,
  * page 26 for more information on the Movie Database schema.
  */
+@SuppressWarnings("rawtypes")
 class MovieDB {
 	/***************************************************************************
 	 * Main method for creating, populating and querying a Movie Database.
@@ -27,7 +28,7 @@ class MovieDB {
 				"title year length genre studioName producerNo",
 				"String Integer Integer String String Integer", "title year");
 
-		Table cinema = new Table("cinema",
+		/*Table cinema = new Table("cinema",
 				"title year length genre studioName producerNo",
 				"String Integer Integer String String Integer", "title year");
 
@@ -42,7 +43,7 @@ class MovieDB {
 				"Integer String String Float", "certNo");
 
 		Table studio = new Table("studio", "name address presNo",
-				"String String Integer", "name");
+				"String String Integer", "name");*/
 
 		Comparable[] film0 = { "Star_Wars", 1977, 124, "sciFi", "Fox", 12345 };
 		Comparable[] film1 = { "Star_Wars_2", 1980, 124, "sciFi", "Fox", 12345 };
@@ -55,14 +56,8 @@ class MovieDB {
 		movie.insert(film3);
 		movie.print();
 		
-		/*
-		 * My Comments SINA
-		 */
-		
 		movie.project("year title title year length title").print();
 		movie.project("title").print();
-
-		//Arash is great!
 		
 		/*Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };

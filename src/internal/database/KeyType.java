@@ -15,6 +15,7 @@ import static java.lang.System.out;
  * composite keys. A key is a minimal set of attributes that can be used to
  * uniquely identify a tuple.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class KeyType implements Comparable<KeyType> {
 	/**
 	 * Array holding the attribute values for a particular key
@@ -39,7 +40,6 @@ public class KeyType implements Comparable<KeyType> {
 	 *            the other key (to compare with this)
 	 * @return resultant integer that's negative, zero or positive
 	 */
-	@SuppressWarnings("unchecked")
 	public int compareTo(KeyType k) {
 		for (int i = 0; i < key.length; i++) {
 			if (key[i].compareTo(k.key[i]) < 0)
