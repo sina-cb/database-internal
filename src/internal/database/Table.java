@@ -703,13 +703,6 @@ public class Table implements Serializable, Cloneable {
 		return postfix;
 	} // infix2postfix
 	
-	public static void main(String[] args) {
-		String Condition = new String("name != salam & year < 1996 | box > 1200");
-		String[] outputStr = infix2postfix(Condition);
-		for (String str : outputStr) {
-			System.out.println(str);
-		}
-	}
 
 	/***************************************************************************
 	 * Find the classes in the "java.lang" package with given names.
