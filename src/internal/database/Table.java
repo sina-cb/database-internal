@@ -566,21 +566,11 @@ public class Table implements Serializable, Cloneable {
 
 	}
 
-/***************************************************************************
-	 * Convert an untokenized infix expression to a tokenized postfix
-	 * expression. This implementation does not handle parentheses ( ). Ex:
-	 * "1979 < year & year < 1990" --> { "1979", "year", "<", "year", "1990",
-	 * "<", "&" }
-	 * 
-	 * "==", "!=", "<",
-	 * "<=", ">", ">=" 2 Boolean operators: "&", "|" (from high to low
-	 * precedence
-	 * 
-	 * @param condition
-	 *            the untokenized infix condition
-	 * @return resultant tokenized postfix expression
+	/***************************************************************************
+	 * This method gets an operator string and return the priority for that operator
+	 * @param inputStr The input operator
+	 * @return Priority for that operator
 	 */
-	// The operator Strings are keywords so could not be defined as enumerations
 	private static Integer operator2priority(String inputStr) {
 		HashMap<String, Integer> operators = new HashMap<>();
 		operators.put("==", 8);
@@ -599,6 +589,11 @@ public class Table implements Serializable, Cloneable {
 		}
 	}
 
+	/***************************************************************************
+	 * This method is used to convert a priority value to the corresponding operator string
+	 * @param inputInt The priority
+	 * @return The operator string
+	 */
 	private static String priority2operator(Integer inputInt) {
 		HashMap<Integer, String> operators = new HashMap<>();
 		operators.put(8, "==");
@@ -616,7 +611,21 @@ public class Table implements Serializable, Cloneable {
 			return null;
 		}
 	}
-
+	
+	/***************************************************************************
+	 * Convert an untokenized infix expression to a tokenized postfix
+	 * expression. This implementation does not handle parentheses ( ). Ex:
+	 * "1979 < year & year < 1990" --> { "1979", "year", "<", "year", "1990",
+	 * "<", "&" }
+	 * 
+	 * "==", "!=", "<",
+	 * "<=", ">", ">=" 2 Boolean operators: "&", "|" (from high to low
+	 * precedence
+	 * 
+	 * @param condition
+	 *            the untokenized infix condition
+	 * @return resultant tokenized postfix expression
+	 */
 	private static String[] infix2postfix(String condition) {
 		if (condition == null || condition.trim() == "")
 			return null;
@@ -721,5 +730,20 @@ public class Table implements Serializable, Cloneable {
 
 		return tup;
 	} // extractTup
+
+	
+	/**
+	 * @return the attribute
+	 */
+	public String[] getAttribute() {
+		return attribute;
+	}
+
+	/**
+	 * @return the domain
+	 */
+	public Class[] getDomain() {
+		return domain;
+	}
 
 } // Table class
