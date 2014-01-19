@@ -13,6 +13,8 @@ import static java.lang.System.out;
 
 import java.util.*;
 
+import sun.security.jgss.TokenTracker;
+
 /*******************************************************************************
  * This class implements relational database tables (including attribute names,
  * domains and a list of tuples. Five basic relational algebra operators are
@@ -20,7 +22,7 @@ import java.util.*;
  * manipulation operator is also provided. Missing are update and delete data
  * manipulation operators.
  */
-@SuppressWarnings({ "rawtypes", "serial" })
+@SuppressWarnings({ "rawtypes", "serial", "unchecked" })
 public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
@@ -168,6 +170,7 @@ public class Table implements Serializable, Cloneable {
 		out.println("RA> " + name + ".select (" + condition + ")");
 
 		String[] postfix = infix2postfix(condition);
+
 		Table result = new Table(name + count++, attribute, domain, key);
 
 		for (Comparable[] tup : tuples) {
@@ -185,41 +188,15 @@ public class Table implements Serializable, Cloneable {
 	 * @param table2
 	 *            the rhs table in the union operation
 	 * @return the table representing the union (this U table2)
-	 * @author Sambitesh
 	 */
 	public Table union(Table table2) {
 		out.println("RA> " + name + ".union (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
-		// Compatibility check
-		if (!this.compatible(table2)) {
-			out.println("Incompatible Tables");
-		}
-
-		else {
-			// Adds first table as it is to the result
-			int length1 = this.tuples.size();
-			for (int i = 0; i < length1; i++) {
-				result.insert(this.tuples.get(i));
-			}
-
-			for (int i = 0; i < table2.tuples.size(); i++) {
-				Comparable[] current = (Comparable[]) table2.tuples.get(i);
-				Comparable[] keyVal = new Comparable[table2.key.length];
-				int[] cols = match(result.key);
-
-				for (int j = 0; j < keyVal.length; j++) {
-					keyVal[j] = current[cols[j]];
-				}
-
-				// Insert only those keys which are in table2 but not in table
-				// one
-				if (!(result.index.containsKey(new KeyType(keyVal)))) {
-					result.insert(current);
-				}
-			}
-		}
+		// -----------------\\
+		// TO BE IMPLEMENTED \\
+		// ---------------------\\
 
 		return result;
 	} // union
@@ -358,29 +335,13 @@ public class Table implements Serializable, Cloneable {
 	 * @param table2
 	 *            the rhs table
 	 * @return whether the two tables are compatible
-	 * @author Sambitesh
 	 */
 	private boolean compatible(Table table2) {
-		// Two tables are union compatible if
-		// 1) They have same number of coloumns
-		// 2) Same domain type for each relative domain
+		// -----------------\\
+		// TO BE IMPLEMENTED \\
+		// ---------------------\\
 
-		// Checking for case 1
-		if (this.domain.length != table2.domain.length) {
-			return false;
-		}
-		for (int i = 0; i < this.domain.length; i++) {
-			int[] pos = new int[1];
-			pos[0] = i;
-			Class[] tableone = Table.extractDom(this.domain, pos);
-			Class[] tabletwo = Table.extractDom(table2.domain, pos);
-			// Checking for case 2
-			if (tableone[0] != tabletwo[0]) {
-				return (false);
-			}
-		}
-
-		return true;
+		return false;
 	} // compatible
 
 	/***************************************************************************
@@ -427,23 +388,80 @@ public class Table implements Serializable, Cloneable {
 	 *            the tuple to check
 	 * @return whether to keep the tuple
 	 */
-	@SuppressWarnings("unchecked")
 	private boolean evalTup(String[] postfix, Comparable[] tup) {
 		if (postfix == null)
 			return true;
-		Stack<Comparable<?>> s = new Stack<>();
+		Stack<Comparable<?>> stack = new Stack<>();
 
 		for (String token : postfix) {
+			if (ifOperator(token)) {
+				Comparable<?> value1 = stack.pop();
+				Comparable<?> value2 = stack.pop();
 
-			// -----------------\\
-			// TO BE IMPLEMENTED \\
-			// ---------------------\\
-
+				stack.add(evaluate(value1, value2, token));
+			} else {
+				if (Arrays.asList(attribute).contains(token)) {
+					int index = columnPos(token);
+					stack.add(tup[index]);
+				} else {
+					int result = ifNumber(token);
+					if (result == -1) {
+						if (token.equals("true")) {
+							stack.add(new Boolean(true));
+						} else if (token.equals("false")) {
+							stack.add(new Boolean(false));
+						} else {
+							stack.add(new String(token));
+						}
+					} else if (result == 0) {
+						stack.add(Integer.parseInt(token));
+					} else if (result == 1) {
+						stack.add(Double.parseDouble(token));
+					}
+				}
+			}
 		} // for
 
-		// return (Boolean) s.pop (); // FIX: uncomment after loop impl
-		return true; // FIX: delete after loop impl
+		return (Boolean) stack.pop ();
 	} // evalTup
+
+	/***************************************************************************
+	 * This method will take two values and apply the operator between them and
+	 * return the result.
+	 * 
+	 * @param value1
+	 *            The first value
+	 * @param value2
+	 *            the second value
+	 * @param operator
+	 *            the operator which is applied
+	 * @return the result of value1 (operator) value2
+	 */
+	private static Comparable evaluate(Comparable value1, Comparable value2,
+			String operator) {
+
+		switch (operator) {
+		case "==":
+			return (value1.compareTo(value2) == 0);
+		case "!=":
+			return (value1.compareTo(value2) != 0);
+		case "<":
+			return (value1.compareTo(value2) > 0);
+		case "<=":
+			return (value1.compareTo(value2) >= 0);
+		case ">":
+			return (value1.compareTo(value2) < 0);
+		case ">=":
+			return (value1.compareTo(value2) <= 0);
+		case "&":
+			return ((Boolean) value1 && (Boolean) value2);
+		case "|":
+			return ((Boolean) value1 || (Boolean) value2);
+		default:
+			return null;
+		}
+
+	}
 
 	/***************************************************************************
 	 * Pack tuple tup into a record/byte-buffer (array of bytes).
@@ -570,123 +588,126 @@ public class Table implements Serializable, Cloneable {
 		} // switch
 	} // compare
 
-/***************************************************************************
+	/***************************************************************************
 	 * Convert an untokenized infix expression to a tokenized postfix
 	 * expression. This implementation does not handle parentheses ( ). Ex:
 	 * "1979 < year & year < 1990" --> { "1979", "year", "<", "year", "1990",
 	 * "<", "&" }
 	 * 
-	 * "==", "!=", "<",
-	 * "<=", ">", ">=" 2 Boolean operators: "&", "|" (from high to low
-	 * precedence
-	 * 
 	 * @param condition
 	 *            the untokenized infix condition
 	 * @return resultant tokenized postfix expression
 	 */
-	// The operator Strings are keywords so could not be defined as enumerations
-	private static Integer operator2priority(String inputStr) {
-
-		if (inputStr.equals("=="))
-			return 8;
-		else if (inputStr.equals("!="))
-			return 7;
-		else if (inputStr.equals("<"))
-			return 6;
-		else if (inputStr.equals("<="))
-			return 5;
-		else if (inputStr.equals(">"))
-			return 4;
-		else if (inputStr.equals(">="))
-			return 3;
-		else if (inputStr.equals("&"))
-			return 2;
-		else if (inputStr.equals("|"))
-			return 1;
-		else
-			return 0;
-
-	}
-
-	private static String priority2operator(Integer inputInt) {
-
-		if (inputInt == 8)
-			return "==";
-		else if (inputInt == 7)
-			return "!=";
-		else if (inputInt == 6)
-			return "<";
-		else if (inputInt == 5)
-			return "<=";
-		else if (inputInt == 4)
-			return ">";
-		else if (inputInt == 3)
-			return ">=";
-		else if (inputInt == 2)
-			return "&";
-		else if (inputInt == 1)
-			return "|";
-		else
-			return null;
-
-	}
-
 	private static String[] infix2postfix(String condition) {
 		if (condition == null || condition.trim() == "")
 			return null;
-		String[] infix = condition.split(" ");
-		String[] postfix = new String[infix.length];
+		String[] infix = condition.split(" "); // tokenize the infix
+		String[] postfix = new String[infix.length]; // same size, since no ( )
+		Stack<String> stack = new Stack<>();
 
-		Stack<Integer> operatorStack = new Stack<Integer>();
-		int count = 0;
-		for (String str : infix) {
-			if (operator2priority(str) == 0) {
-				postfix[count] = str;
-				count++;
-				continue;
+		// The operators "==", "!=", "<", "<=", ">", ">=" 2 Boolean operators:
+		// "&", "|"
+		// From higher to lower precedence.
+		int index = 0;
+		for (String s : infix) {
+			if (!ifOperator(s)) {
+				postfix[index] = s;
+				index++;
 			} else {
-				if (operatorStack.isEmpty()) {
-					operatorStack.push(operator2priority(str));
-					continue;
-				} else {
-					if (operatorStack.lastElement() <= operator2priority(str)) { // implemented
-																					// on
-																					// a
-																					// separate
-																					// "if"
-																					// so
-																					// that
-																					// no
-																					// error
-																					// happens
-																					// on
-																					// an
-																					// empty
-																					// stack
-						operatorStack.push(operator2priority(str));
-						continue;
-					} else {
-						while (operatorStack.lastElement() > operator2priority(str)) {
-							postfix[count] = priority2operator(operatorStack
-									.pop());
-							count++;
-							if (operatorStack.isEmpty())
-								break;
-						}
-						operatorStack.push(operator2priority(str));
-						continue;
-					}
+				while ((!stack.empty())
+						&& (comparePrecedence(stack.lastElement(), s) >= 0)) {
+					String temp = stack.pop();
+					postfix[index] = temp;
+					index++;
 				}
+				stack.push(s);
 			}
 		}
-
-		while (!operatorStack.isEmpty()) {
-			postfix[count] = priority2operator(operatorStack.pop());
-			count++;
+		while (!stack.empty()) {
+			postfix[index] = stack.pop();
+			index++;
 		}
 
 		return postfix;
 	} // infix2postfix
+
+	/***************************************************************************
+	 * This method only checks if a string is a valid operator or not
+	 * 
+	 * @param str
+	 *            The input string to be checked
+	 * @return return true if 'str' is a valid operator
+	 */
+	private static boolean ifOperator(String str) {
+		List<String> operators = new ArrayList<String>();
+		operators.add("==");
+		operators.add("!=");
+		operators.add("<");
+		operators.add("<=");
+		operators.add(">");
+		operators.add(">=");
+		operators.add("&");
+		operators.add("|");
+
+		return operators.contains(str);
+	}
+
+	/***************************************************************************
+	 * This checks if the input string is a number or not. If the string is not
+	 * a number, it will return -1. If the string is a number and it is an
+	 * Integer it will return 0 otherwise, if it is not an Integer it will
+	 * return 1.
+	 * 
+	 * @param str
+	 *            The input string
+	 * @return -1 if not a number, 0 if an Integer number, 1 if a number with
+	 *         floating point
+	 */
+	private static int ifNumber(String str) {
+		for (int i = 0; i < str.length(); i++) {
+			if (str.charAt(i) != '.'
+					&& (str.charAt(i) < '0' || str.charAt(i) > '9')) {
+				return -1;
+			}
+		}
+
+		if (str.contains(".")) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	/***************************************************************************
+	 * This method will return: 1. Minus, if the first operator has lower
+	 * precedence than second operator 2. Zero, if both operators have the same
+	 * precedence 3. Positive, if the second operator has higher precedence
+	 * 
+	 * @param first
+	 *            First operator to be checked against the second operator
+	 * @param second
+	 *            Second operator to be checked against the first operator
+	 * @return -1, 0 or 1 based on precedence of operators
+	 */
+	private static int comparePrecedence(String first, String second) {
+		HashMap<String, Integer> precedence = new HashMap<String, Integer>();
+		precedence.put("==", 0);
+		precedence.put("!=", 1);
+		precedence.put("<", 2);
+		precedence.put("<=", 3);
+		precedence.put(">", 4);
+		precedence.put(">=", 5);
+		precedence.put("&", 6);
+		precedence.put("|", 7);
+
+		if (precedence.get(first) < precedence.get(second)) {
+			return 1;
+		} else if (precedence.get(first) > precedence.get(second)) {
+			return -1;
+		}
+
+		return 0;
+	}
 
 	/***************************************************************************
 	 * Find the classes in the "java.lang" package with given names.
