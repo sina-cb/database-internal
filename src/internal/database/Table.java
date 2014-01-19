@@ -588,22 +588,128 @@ public class Table implements Serializable, Cloneable {
 	 * "1979 < year & year < 1990" --> { "1979", "year", "<", "year", "1990",
 	 * "<", "&" }
 	 * 
+	 * "==", "!=", "<",
+	 * "<=", ">", ">=" 2 Boolean operators: "&", "|" (from high to low
+	 * precedence
+	 * 
 	 * @param condition
 	 *            the untokenized infix condition
 	 * @return resultant tokenized postfix expression
 	 */
+	// The operator Strings are keywords so could not be defined as enumerations
+	private static Integer operator2priority (String inputStr){
+		
+		if (inputStr.equals("=="))
+			return 8;
+		else 
+			if (inputStr.equals("!="))
+				return 7;
+			else
+				if (inputStr.equals("<"))
+					return 6;
+				else
+					if (inputStr.equals("<="))
+						return 5;
+					else
+						if (inputStr.equals(">"))
+							return 4;
+						else
+							if (inputStr.equals(">="))
+								return 3;
+							else
+								if (inputStr.equals("&"))
+									return 2;
+								else
+									if (inputStr.equals("|"))
+										return 1;
+									else
+										return 0;
+		
+	}
+	
+	private static String priority2operator (Integer inputInt){
+		
+		if (inputInt == 8)
+			return "==";
+		else 
+			if (inputInt == 7)
+				return "!=";
+			else
+				if (inputInt == 6)
+					return "<";
+				else
+					if (inputInt == 5)
+						return "<=";
+					else
+						if (inputInt == 4)
+							return ">";
+						else
+							if (inputInt == 3)
+								return ">=";
+							else
+								if (inputInt == 2)
+									return "&";
+								else
+									if (inputInt == 1)
+										return "|";
+									else
+										return null;
+		
+	}
+
 	private static String[] infix2postfix(String condition) {
 		if (condition == null || condition.trim() == "")
 			return null;
 		String[] infix = condition.split(" "); // tokenize the infix
 		String[] postfix = new String[infix.length]; // same size, since no ( )
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		Stack<Integer> operatorStack = new Stack<Integer>();
+		int count = 0;
+		for (String str : infix) {
+			if (operator2priority(str) == 0) {
+				postfix[count] = str;
+				count++;
+				continue;
+			}
+			else {
+				if (operatorStack.isEmpty()) { 
+					operatorStack.push(operator2priority(str));
+					continue;
+				}
+				else {
+					if (operatorStack.lastElement() <= operator2priority(str)) { //implemented on a separate "if" so that no error happens on an empty stack
+						operatorStack.push(operator2priority(str));
+						continue;
+					}
+					else {
+						while (operatorStack.lastElement() > operator2priority(str)) {
+							postfix[count] = priority2operator(operatorStack.pop());
+							count++;
+							if (operatorStack.isEmpty())
+								break;
+						}
+						operatorStack.push(operator2priority(str));
+						continue;
+					}
+				}
+			}		
+		}
+		
+		while (!operatorStack.isEmpty()) {
+			postfix[count] = priority2operator(operatorStack.pop());
+			count++;
+		}
 
 		return postfix;
 	} // infix2postfix
+	
+	public static void main(String[] args) {
+		String Condition = new String("name != salam & year < 1996 | box > 1200");
+		String[] outputStr = infix2postfix(Condition);
+		for (String str : outputStr) {
+			System.out.println(str);
+		}
+	}
 
 	/***************************************************************************
 	 * Find the classes in the "java.lang" package with given names.
