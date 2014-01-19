@@ -418,6 +418,44 @@ public class Table implements Serializable, Cloneable {
 
 		return colPos;
 	} // match
+	
+	/**************************************************************************
+	 * 
+	 * @param inputStr
+	 * @param inputType
+	 * @return
+	 */
+	private static Comparable simpleOperand(String inputStr, Class inputType){
+		
+		if (inputType == String.class){
+			inputStr.replaceAll("'", "");
+			return inputStr;
+		}
+		
+		if (inputType == Character.class)
+			return inputStr.charAt(0);
+		
+		if (inputType == Byte.class)
+			return Byte.parseByte(inputStr);
+		
+		if (inputType == Short.class)
+			return Short.parseShort(inputStr);
+		
+		if (inputType == Integer.class)
+			return Integer.parseInt(inputStr);
+		
+		if (inputType == Long.class)
+			return Long.parseLong(inputStr);
+		
+		if (inputType == Float.class)
+			return Float.parseFloat(inputStr);
+		
+		if (inputType == Double.class)
+			return Double.parseDouble(inputStr);
+		
+		return null;
+	}
+	
 
 	/***************************************************************************
 	 * Check whether the tuple satisfies the condition. Use a stack-based
@@ -434,16 +472,28 @@ public class Table implements Serializable, Cloneable {
 			return true;
 		Stack<Comparable<?>> s = new Stack<>();
 
+		Class typeOfOperand = String.class;
 		for (String token : postfix) {
+			if (operator2priority(token) != 0){
+				Comparable operand1 = s.pop();
+				Comparable operand2 = s.pop();
+				s.push(evaluate(operand1,operand2,token));
+				continue;
+			}
+			if (Arrays.asList(this.attribute).contains(token)) {
+				s.push(tup[Arrays.asList(this.attribute).indexOf(token)]);
+				typeOfOperand = this.domain[Arrays.asList(this.attribute).indexOf(token)];
+				continue;
+			}
+			else {
+				s.push(simpleOperand(token, typeOfOperand));
+				typeOfOperand = String.class;
+				continue;
+			}
 
-			// -----------------\\
-			// TO BE IMPLEMENTED \\
-			// ---------------------\\
+		} 
 
-		} // for
-
-		// return (Boolean) s.pop (); // FIX: uncomment after loop impl
-		return true; // FIX: delete after loop impl
+		return (Boolean) s.pop ();
 	} // evalTup
 
 	/***************************************************************************
@@ -669,6 +719,7 @@ public class Table implements Serializable, Cloneable {
 
 		return postfix;
 	} // infix2postfix
+	
 
 	/***************************************************************************
 	 * Find the classes in the "java.lang" package with given names.
