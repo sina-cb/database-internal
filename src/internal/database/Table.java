@@ -239,12 +239,43 @@ public class Table implements Serializable, Cloneable {
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		// Compatibility check
+		if (!this.compatible(table2)) {
+			out.println("Incompatible Tables");
+		} else {
+			// Check whether tuples in Table1 are Equal to tuples in Table2 or
+			// not
+			for (Comparable[] tup1 : this.tuples) {
+				boolean exists = false;
+				for (Comparable[] tup2 : table2.tuples) {
+					if (compareTuples(tup1, tup2)) {
+						exists = true;
+						break;
+					}
+				}
+				// Add tuples to the result table
+				if (exists = false)
+					result.insert(tup1);
+			}
+		}
 
 		return result;
 	} // minus
+
+	/***************************************************************************
+	 * Compare two tuples deeply
+	 * @param tup1 the first tuple
+	 * @param tup2 the second tuple
+	 * @return true if two arrays are equal, false if those two differ
+	 */
+	private boolean compareTuples(Comparable[] tup1, Comparable[] tup2) {
+		for (int i = 0; i < tup1.length; i++){
+			if (tup1[i].compareTo(tup2[i]) != 0){
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/***************************************************************************
 	 * Join this table and table2. If an attribute name appears in both tables,
@@ -418,44 +449,46 @@ public class Table implements Serializable, Cloneable {
 
 		return colPos;
 	} // match
-	
+
 	/**************************************************************************
 	 * Parse the operand into a Comparable object
-	 * @param inputStr The input string 
-	 * @param inputType Class type of the operand
+	 * 
+	 * @param inputStr
+	 *            The input string
+	 * @param inputType
+	 *            Class type of the operand
 	 * @return the Comparable object
 	 */
-	private static Comparable parseOperand(String inputStr, Class inputType){
-		
-		if (inputType == String.class){
+	private static Comparable parseOperand(String inputStr, Class inputType) {
+
+		if (inputType == String.class) {
 			inputStr = inputStr.replaceAll("'", "");
 			return inputStr;
 		}
-		
+
 		if (inputType == Character.class)
 			return inputStr.charAt(0);
-		
+
 		if (inputType == Byte.class)
 			return Byte.parseByte(inputStr);
-		
+
 		if (inputType == Short.class)
 			return Short.parseShort(inputStr);
-		
+
 		if (inputType == Integer.class)
 			return Integer.parseInt(inputStr);
-		
+
 		if (inputType == Long.class)
 			return Long.parseLong(inputStr);
-		
+
 		if (inputType == Float.class)
 			return Float.parseFloat(inputStr);
-		
+
 		if (inputType == Double.class)
 			return Double.parseDouble(inputStr);
-		
+
 		return null;
 	}
-	
 
 	/***************************************************************************
 	 * Check whether the tuple satisfies the condition. Use a stack-based
@@ -474,24 +507,25 @@ public class Table implements Serializable, Cloneable {
 
 		Class typeOfOperand = String.class;
 		for (String token : postfix) {
-			if (operator2priority(token) != 0){
+			if (operator2priority(token) != 0) {
 				Comparable operand1 = s.pop();
 				Comparable operand2 = s.pop();
-				s.push(evaluate(operand1,operand2,token));
+				s.push(evaluate(operand1, operand2, token));
 				continue;
 			}
 			if (Arrays.asList(this.attribute).contains(token)) {
 				s.push(tup[Arrays.asList(this.attribute).indexOf(token)]);
-				typeOfOperand = this.domain[Arrays.asList(this.attribute).indexOf(token)];
+				typeOfOperand = this.domain[Arrays.asList(this.attribute)
+						.indexOf(token)];
 				continue;
 			} else {
 				s.push(parseOperand(token, typeOfOperand));
 				typeOfOperand = String.class;
 				continue;
 			}
-		} 
+		}
 
-		return (Boolean) s.pop ();
+		return (Boolean) s.pop();
 	} // evalTup
 
 	/***************************************************************************
@@ -615,8 +649,11 @@ public class Table implements Serializable, Cloneable {
 	}
 
 	/***************************************************************************
-	 * This method gets an operator string and return the priority for that operator
-	 * @param inputStr The input operator
+	 * This method gets an operator string and return the priority for that
+	 * operator
+	 * 
+	 * @param inputStr
+	 *            The input operator
 	 * @return Priority for that operator
 	 */
 	private static Integer operator2priority(String inputStr) {
@@ -638,8 +675,11 @@ public class Table implements Serializable, Cloneable {
 	}
 
 	/***************************************************************************
-	 * This method is used to convert a priority value to the corresponding operator string
-	 * @param inputInt The priority
+	 * This method is used to convert a priority value to the corresponding
+	 * operator string
+	 * 
+	 * @param inputInt
+	 *            The priority
 	 * @return The operator string
 	 */
 	private static String priority2operator(Integer inputInt) {
@@ -659,8 +699,8 @@ public class Table implements Serializable, Cloneable {
 			return null;
 		}
 	}
-	
-	/***************************************************************************
+
+/***************************************************************************
 	 * Convert an untokenized infix expression to a tokenized postfix
 	 * expression. This implementation does not handle parentheses ( ). Ex:
 	 * "1979 < year & year < 1990" --> { "1979", "year", "<", "year", "1990",
@@ -717,7 +757,6 @@ public class Table implements Serializable, Cloneable {
 
 		return postfix;
 	} // infix2postfix
-	
 
 	/***************************************************************************
 	 * Find the classes in the "java.lang" package with given names.
@@ -780,7 +819,6 @@ public class Table implements Serializable, Cloneable {
 		return tup;
 	} // extractTup
 
-	
 	/**
 	 * @return the attribute
 	 */
