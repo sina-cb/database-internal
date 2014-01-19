@@ -123,6 +123,8 @@ public class Table implements Serializable, Cloneable {
 	 * @param attributeList
 	 *            the attributes to project onto
 	 * @return the table consisting of projected tuples
+	 * 
+	 * @author Sina
 	 */
 	public Table project(String attributeList) {
 		out.println("RA> " + name + ".project (" + attributeList + ")");
@@ -525,48 +527,44 @@ public class Table implements Serializable, Cloneable {
 	} // typeCheck
 
 	/***************************************************************************
-	 * Determine if the token/op is a comparison operator.
+	 * This method will take two values and apply the operator between them and
+	 * return the result.
 	 * 
-	 * @param op
-	 *            the token/op to check
-	 * @return whether it a comparison operator
+	 * @param value1
+	 *            The first value
+	 * @param value2
+	 *            the second value
+	 * @param operator
+	 *            the operator which is applied
+	 * @return the result of value1 (operator) value2
+	 * 
+	 * @author Sina
 	 */
-	private static boolean isComparison(String op) {
-		return op.equals("==") || op.equals("!=") || op.equals("<")
-				|| op.equals("<=") || op.equals(">") || op.equals(">=");
-	} // isComparison
+	private static Comparable evaluate(Comparable value1, Comparable value2,
+			String operator) {
 
-	/***************************************************************************
-	 * Compare values x and y according to the comparison operator.
-	 * 
-	 * @param x
-	 *            the first operand
-	 * @param op
-	 *            the comparison operator
-	 * @param y
-	 *            the second operand
-	 * @return whether the comparison evaluates to true or false
-	 */
-	private static boolean compare(Comparable x, String op, Comparable y) {
-		switch (op) {
+		switch (operator) {
 		case "==":
-			return x.compareTo(y) == 0;
+			return (value1.compareTo(value2) == 0);
 		case "!=":
-			return x.compareTo(y) != 0;
+			return (value1.compareTo(value2) != 0);
 		case "<":
-			return x.compareTo(y) < 0;
+			return (value1.compareTo(value2) > 0);
 		case "<=":
-			return x.compareTo(y) <= 0;
+			return (value1.compareTo(value2) >= 0);
 		case ">":
-			return x.compareTo(y) > 0;
+			return (value1.compareTo(value2) < 0);
 		case ">=":
-			return x.compareTo(y) >= 0;
-		default: {
-			out.println("compare: error - unexpected op");
-			return false;
+			return (value1.compareTo(value2) <= 0);
+		case "&":
+			return ((Boolean) value1 && (Boolean) value2);
+		case "|":
+			return ((Boolean) value1 || (Boolean) value2);
+		default:
+			return null;
 		}
-		} // switch
-	} // compare
+
+	}
 
 /***************************************************************************
 	 * Convert an untokenized infix expression to a tokenized postfix
@@ -593,35 +591,30 @@ public class Table implements Serializable, Cloneable {
 		operators.put(">=", 3);
 		operators.put("&", 2);
 		operators.put("|", 1);
-		
-		if (operators.containsKey(inputStr)){
+
+		if (operators.containsKey(inputStr)) {
 			return operators.get(inputStr);
-		}else{
+		} else {
 			return 0;
 		}
 	}
 
 	private static String priority2operator(Integer inputInt) {
+		HashMap<Integer, String> operators = new HashMap<>();
+		operators.put(8, "==");
+		operators.put(7, "!=");
+		operators.put(6, "<");
+		operators.put(5, "<=");
+		operators.put(4, ">");
+		operators.put(3, ">=");
+		operators.put(2, "&");
+		operators.put(1, "|");
 
-		if (inputInt == 8)
-			return "==";
-		else if (inputInt == 7)
-			return "!=";
-		else if (inputInt == 6)
-			return "<";
-		else if (inputInt == 5)
-			return "<=";
-		else if (inputInt == 4)
-			return ">";
-		else if (inputInt == 3)
-			return ">=";
-		else if (inputInt == 2)
-			return "&";
-		else if (inputInt == 1)
-			return "|";
-		else
-			return null;
-
+		if (operators.containsKey(inputInt)) {
+			return operators.get(inputInt);
+		} else {
+			return 0;
+		}
 	}
 
 	private static String[] infix2postfix(String condition) {
