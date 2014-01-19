@@ -20,7 +20,7 @@ import java.util.*;
  * manipulation operator is also provided. Missing are update and delete data
  * manipulation operators.
  */
-@SuppressWarnings({ "rawtypes", "serial" })
+@SuppressWarnings({ "rawtypes", "serial", "unchecked" })
 public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
@@ -362,7 +362,7 @@ public class Table implements Serializable, Cloneable {
 	 */
 	private boolean compatible(Table table2) {
 		// Two tables are union compatible if
-		// 1) They have same number of coloumns
+		// 1) They have same number of columns
 		// 2) Same domain type for each relative domain
 
 		// Checking for case 1
@@ -427,7 +427,6 @@ public class Table implements Serializable, Cloneable {
 	 *            the tuple to check
 	 * @return whether to keep the tuple
 	 */
-	@SuppressWarnings("unchecked")
 	private boolean evalTup(String[] postfix, Comparable[] tup) {
 		if (postfix == null)
 			return true;
@@ -548,7 +547,6 @@ public class Table implements Serializable, Cloneable {
 	 *            the second operand
 	 * @return whether the comparison evaluates to true or false
 	 */
-	@SuppressWarnings("unchecked")
 	private static boolean compare(Comparable x, String op, Comparable y) {
 		switch (op) {
 		case "==":
@@ -586,26 +584,21 @@ public class Table implements Serializable, Cloneable {
 	 */
 	// The operator Strings are keywords so could not be defined as enumerations
 	private static Integer operator2priority(String inputStr) {
-
-		if (inputStr.equals("=="))
-			return 8;
-		else if (inputStr.equals("!="))
-			return 7;
-		else if (inputStr.equals("<"))
-			return 6;
-		else if (inputStr.equals("<="))
-			return 5;
-		else if (inputStr.equals(">"))
-			return 4;
-		else if (inputStr.equals(">="))
-			return 3;
-		else if (inputStr.equals("&"))
-			return 2;
-		else if (inputStr.equals("|"))
-			return 1;
-		else
+		HashMap<String, Integer> operators = new HashMap<>();
+		operators.put("==", 8);
+		operators.put("!=", 7);
+		operators.put("<", 6);
+		operators.put("<=", 5);
+		operators.put(">", 4);
+		operators.put(">=", 3);
+		operators.put("&", 2);
+		operators.put("|", 1);
+		
+		if (operators.containsKey(inputStr)){
+			return operators.get(inputStr);
+		}else{
 			return 0;
-
+		}
 	}
 
 	private static String priority2operator(Integer inputInt) {
@@ -649,20 +642,7 @@ public class Table implements Serializable, Cloneable {
 					operatorStack.push(operator2priority(str));
 					continue;
 				} else {
-					if (operatorStack.lastElement() <= operator2priority(str)) { // implemented
-																					// on
-																					// a
-																					// separate
-																					// "if"
-																					// so
-																					// that
-																					// no
-																					// error
-																					// happens
-																					// on
-																					// an
-																					// empty
-																					// stack
+					if (operatorStack.lastElement() <= operator2priority(str)) {
 						operatorStack.push(operator2priority(str));
 						continue;
 					} else {
