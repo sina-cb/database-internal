@@ -420,15 +420,15 @@ public class Table implements Serializable, Cloneable {
 	} // match
 	
 	/**************************************************************************
-	 * 
-	 * @param inputStr
-	 * @param inputType
-	 * @return
+	 * Parse the operand into a Comparable object
+	 * @param inputStr The input string 
+	 * @param inputType Class type of the operand
+	 * @return the Comparable object
 	 */
-	private static Comparable simpleOperand(String inputStr, Class inputType){
+	private static Comparable parseOperand(String inputStr, Class inputType){
 		
 		if (inputType == String.class){
-			inputStr.replaceAll("'", "");
+			inputStr = inputStr.replaceAll("'", "");
 			return inputStr;
 		}
 		
@@ -484,13 +484,11 @@ public class Table implements Serializable, Cloneable {
 				s.push(tup[Arrays.asList(this.attribute).indexOf(token)]);
 				typeOfOperand = this.domain[Arrays.asList(this.attribute).indexOf(token)];
 				continue;
-			}
-			else {
-				s.push(simpleOperand(token, typeOfOperand));
+			} else {
+				s.push(parseOperand(token, typeOfOperand));
 				typeOfOperand = String.class;
 				continue;
 			}
-
 		} 
 
 		return (Boolean) s.pop ();

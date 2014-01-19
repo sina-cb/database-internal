@@ -59,7 +59,8 @@ class MovieDB {
 		movie.project("year title title year length title").print();
 		movie.project("title").print();
 		
-		movie.select("name != 'salam' & year < '1996' | box > '1200'").project("title year").print();
+		out.print("THIS IS\n");
+		movie.select("title == 'Star_Wars' & year == 1977").project("title year").print();
 		
 		/*Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };
