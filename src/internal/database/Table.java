@@ -613,7 +613,7 @@ public class Table implements Serializable, Cloneable {
 		if (operators.containsKey(inputInt)) {
 			return operators.get(inputInt);
 		} else {
-			return 0;
+			return null;
 		}
 	}
 
