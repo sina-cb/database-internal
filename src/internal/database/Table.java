@@ -188,15 +188,47 @@ public class Table implements Serializable, Cloneable {
 	 * @param table2
 	 *            the rhs table in the union operation
 	 * @return the table representing the union (this U table2)
+	 *	@author Sambitesh
 	 */
 	public Table union(Table table2) {
 		out.println("RA> " + name + ".union (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		
+		//Compatibility check
+		if(!this.compatible(table2)){
+                out.println("Incompatible Tables");
+        }
+		
+		else
+		{
+			//Adds first table as it is to the result
+			int length1 = this.tuples.size();
+			for(int i=0; i< length1; i++){
+					result.insert(this.tuples.get(i));
+			}
+			
+			for(int i = 0; i < table2.tuples.size(); i++){
+            Comparable[] current = (Comparable[]) table2.tuples.get(i);
+            Comparable [] keyVal = new Comparable [table2.key.length];
+            int []        cols   = match(result.key);
+
+			for (int j = 0; j < keyVal.length; j++) 
+			{
+				keyVal [j] = current[cols [j]];
+			}
+			
+			//Insert only those keys which are in table2 but not in table one
+			if(!(result.index.containsKey(new KeyType (keyVal))))
+			{
+					
+					result.insert(current);
+			}
+
+            }
+		}
+
 
 		return result;
 	} // union
@@ -335,13 +367,32 @@ public class Table implements Serializable, Cloneable {
 	 * @param table2
 	 *            the rhs table
 	 * @return whether the two tables are compatible
+	 *	@author Sambitesh
 	 */
 	private boolean compatible(Table table2) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
-		return false;
+		//Two tables are union compatible if 
+	   //1) They have same number of coloumns
+	   //2) Same domain type for each relative domain
+	   
+	   //Checking for case 1
+	   if(this.domain.length != table2.domain.length)
+	   {
+			return false;
+	   }
+	   for(int i = 0;i<this.domain.length;i++)
+	   {
+			int[] pos = new int[1];
+            pos[0] = i;
+            Class[] tableone = Table.extractDom(this.domain,pos);
+            Class[] tabletwo = Table.extractDom(table2.domain,pos);
+            //Checking for case 2
+            if(tableone[0]!=tabletwo[0])
+            {
+                    return(false);
+            }
+	   }
+	   
+        return true;
 	} // compatible
 
 	/***************************************************************************
