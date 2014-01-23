@@ -6,12 +6,16 @@ package internal.database;
  * @author   John Miller
  */
 
-import java.io.Serializable;
-
-import static java.lang.Boolean.*;
 import static java.lang.System.out;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.TreeMap;
 
 /*******************************************************************************
  * This class implements relational database tables (including attribute names,
@@ -124,7 +128,7 @@ public class Table implements Serializable, Cloneable {
 	 *            the attributes to project onto
 	 * @return the table consisting of projected tuples
 	 * 
-	 * @author Sina
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table project(String attributeList) {
 		out.println("RA> " + name + ".project (" + attributeList + ")");
@@ -165,6 +169,8 @@ public class Table implements Serializable, Cloneable {
 	 * @param condition
 	 *            the check condition for tuples
 	 * @return the table consisting of tuples satisfying the condition
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table select(String condition) {
 		out.println("RA> " + name + ".select (" + condition + ")");
@@ -186,8 +192,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table in the union operation
+	 *            
 	 * @return the table representing the union (this U table2)
-	 * @author Sambitesh
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table union(Table table2) {
 		out.println("RA> " + name + ".union (" + table2.name + ")");
@@ -232,7 +240,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table in the minus operation
+	 *            
 	 * @return the table representing the difference (this - table2)
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table minus(Table table2) {
 		out.println("RA> " + name + ".minus (" + table2.name + ")");
@@ -254,7 +265,7 @@ public class Table implements Serializable, Cloneable {
 					}
 				}
 				// Add tuples to the result table
-				if (exists = false)
+				if (exists == false)
 					result.insert(tup1);
 			}
 		}
@@ -264,13 +275,18 @@ public class Table implements Serializable, Cloneable {
 
 	/***************************************************************************
 	 * Compare two tuples deeply
-	 * @param tup1 the first tuple
-	 * @param tup2 the second tuple
+	 * 
+	 * @param tup1
+	 *            the first tuple
+	 * @param tup2
+	 *            the second tuple
 	 * @return true if two arrays are equal, false if those two differ
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private boolean compareTuples(Comparable[] tup1, Comparable[] tup2) {
-		for (int i = 0; i < tup1.length; i++){
-			if (tup1[i].compareTo(tup2[i]) != 0){
+		for (int i = 0; i < tup1.length; i++) {
+			if (tup1[i].compareTo(tup2[i]) != 0) {
 				return false;
 			}
 		}
@@ -390,8 +406,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table
+	 *            
 	 * @return whether the two tables are compatible
-	 * @author Sambitesh
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private boolean compatible(Table table2) {
 		// Two tables are union compatible if
@@ -455,9 +473,13 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputStr
 	 *            The input string
+	 *            
 	 * @param inputType
 	 *            Class type of the operand
+	 *            
 	 * @return the Comparable object
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private static Comparable parseOperand(String inputStr, Class inputType) {
 
@@ -496,9 +518,13 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param postfix
 	 *            the postfix expression for the condition
+	 *            
 	 * @param tup
 	 *            the tuple to check
+	 *            
 	 * @return whether to keep the tuple
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private boolean evalTup(String[] postfix, Comparable[] tup) {
 		if (postfix == null)
@@ -620,7 +646,7 @@ public class Table implements Serializable, Cloneable {
 	 *            the operator which is applied
 	 * @return the result of value1 (operator) value2
 	 * 
-	 * @author Sina
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private static Comparable evaluate(Comparable value1, Comparable value2,
 			String operator) {
@@ -654,7 +680,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputStr
 	 *            The input operator
+	 *            
 	 * @return Priority for that operator
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private static Integer operator2priority(String inputStr) {
 		HashMap<String, Integer> operators = new HashMap<>();
@@ -680,7 +709,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputInt
 	 *            The priority
+	 *            
 	 * @return The operator string
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private static String priority2operator(Integer inputInt) {
 		HashMap<Integer, String> operators = new HashMap<>();
@@ -712,7 +744,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param condition
 	 *            the untokenized infix condition
+	 *            
 	 * @return resultant tokenized postfix expression
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	private static String[] infix2postfix(String condition) {
 		if (condition == null || condition.trim() == "")
@@ -821,6 +856,8 @@ public class Table implements Serializable, Cloneable {
 
 	/**
 	 * @return the attribute
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public String[] getAttribute() {
 		return attribute;
@@ -828,9 +865,20 @@ public class Table implements Serializable, Cloneable {
 
 	/**
 	 * @return the domain
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Class[] getDomain() {
 		return domain;
+	}
+
+	/****************
+	 * @return Number of tuples for a Table
+	 * 
+	 * @author Sina, Arash, Navid, Sambitesh
+	 */
+	public int getTupleCount(){
+		return tuples.size();
 	}
 
 } // Table class

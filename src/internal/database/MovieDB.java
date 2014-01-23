@@ -28,7 +28,7 @@ class MovieDB {
 				"title year length genre studioName producerNo",
 				"String Integer Integer String String Integer", "title year");
 
-		/*Table cinema = new Table("cinema",
+		Table cinema = new Table("cinema",
 				"title year length genre studioName producerNo",
 				"String Integer Integer String String Integer", "title year");
 
@@ -43,7 +43,7 @@ class MovieDB {
 				"Integer String String Float", "certNo");
 
 		Table studio = new Table("studio", "name address presNo",
-				"String String Integer", "name");*/
+				"String String Integer", "name");
 
 		Comparable[] film0 = { "Star_Wars", 1977, 124, "sciFi", "Fox", 12345 };
 		Comparable[] film1 = { "Star_Wars_2", 1980, 124, "sciFi", "Fox", 12345 };
@@ -56,13 +56,7 @@ class MovieDB {
 		movie.insert(film3);
 		movie.print();
 		
-		movie.project("year title title year length title").print();
-		movie.project("title").print();
-		
-		out.print("THIS IS\n");
-		movie.select("title == 'Star_Wars' & year == 1977").project("title year").print();
-		
-		/*Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
+		Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };
 		out.println();
 		cinema.insert(film2);
@@ -117,7 +111,6 @@ class MovieDB {
 		out.println();
 		Table t_join = movie.join("studioName == name", studio);
 		t_join.print();
-		*/
 	} // main
 
 } // MovieDB class
