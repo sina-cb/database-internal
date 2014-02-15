@@ -795,10 +795,12 @@ public class Table implements Serializable, Cloneable {
 	 *         the given domains
 	 */
 	private static boolean typeCheck(Comparable[] tup, Class[] dom) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
+		if (tup.length != dom.length)
+			return false;
+		for (int i = 0; i<tup.length; i++){
+			if (!tup[i].getClass().equals(dom[i]))
+				return false;
+		}
 		return true;
 	} // typeCheck
 
