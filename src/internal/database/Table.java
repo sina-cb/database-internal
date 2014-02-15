@@ -253,6 +253,7 @@ public class Table implements Serializable, Cloneable {
 		// Compatibility check
 		if (!this.compatible(table2)) {
 			out.println("Incompatible Tables");
+			return this;
 		} else {
 			// Check whether tuples in Table1 are Equal to tuples in Table2 or
 			// not
