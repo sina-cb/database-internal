@@ -192,7 +192,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table in the union operation
-	 *            
+	 * 
 	 * @return the table representing the union (this U table2)
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -240,7 +240,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table in the minus operation
-	 *            
+	 * 
 	 * @return the table representing the difference (this - table2)
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -312,183 +312,181 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table join(String condition, Table table2) {
-		 /*Step one - Check for valid input it should be of type attributeonename == attributetwoname", both
-		 attributes should be available in respective tables
-		 
-		 Step two - Create appropriate resulting table. In case of duplicate coloumn names add a "s_" prefix
-		 
+		/*
+		 * Step one - Check for valid input it should be of type
+		 * attributeonename == attributetwoname", both attributes should be
+		 * available in respective tables
+		 * 
+		 * Step two - Create appropriate resulting table. In case of duplicate
+		 * coloumn names add a "s_" prefix
 		 */
 
-       Table emptyTable = new Table(name + count++, new String[0], new Class[0], key);
-       //first check the condition input to make sure it is valid
-       String[] splitCondition = condition.split(" ");
-       if(splitCondition.length!=3)
-       {
-           out.println("Invalid join : format must be \"attribute1name == attribute2Name\"");
-           return(emptyTable);
-       }
-       if(!(splitCondition[1].equalsIgnoreCase("==")))
-       {
-           out.println("Invalid join : comparator must be \"==\"");
-           return(emptyTable);
-       }
-       //make sure the first attribute in the condition exists in the first table
-       int firstValuePos = this.columnPos(splitCondition[0]);
-       if(firstValuePos==-1)
-       {
-           out.println("Invalid join : first attribute does not exist in calling table");
-           return(emptyTable);
-       }
-       //make sure the second attribute in the condition exists in the second table
-       int secondValuePos = table2.columnPos(splitCondition[2]);
-       if(secondValuePos==-1)
-       {
-		   //The second attribute might be name s.attributename, so check for it too
-           if(splitCondition[2].startsWith("s."))
-           {
-               splitCondition[2] = splitCondition[2].substring(2);
-               secondValuePos = table2.columnPos(splitCondition[2]);
-           }
-			//If still not found,then invalid join
-           if(secondValuePos==-1)
-           {
-               out.println("Invalid join : second attribute does not exist in parameter table");
-               return(emptyTable);
-           }
-       }
-       //Validity check successful
-       
-       boolean isNull = false;
-       //First figure out how big the table will be (which should = table1 + table2 - 1)
-       int firstTable = this.attribute.length;
-       int secondTableSize = table2.attribute.length;
-       int resultTableSize = firstTable + (secondTableSize -1);
-       //create appropriate variables to hold attributes and domains for the new table
-       String[] resultAttributes = new String[resultTableSize];
-       Class[] resultDomains = new Class[resultTableSize];
-       //initialize these arrays by adding every attribute of table1
-       //and every attribute of table2 EXCEPT for the one named in the condition
-       int colCounter = 0;
-       //handle the first table
-       while(colCounter<firstTable)
-       {
-           resultAttributes[colCounter] = this.attribute[colCounter];
-           resultDomains[colCounter] =  this.domain[colCounter];
-           colCounter++;
-       }
-       //handle the second table
-       int table2Counter = (colCounter - firstTable);
-       while(colCounter<resultTableSize)
-       {
-           //if it isn't the exception, carry on 
-           if(table2Counter != secondValuePos)
-           {
-               //check against the first table's attributes to look for prefixing requirements
-               String s_ = "s_";
-               String curAttr = table2.attribute[table2Counter];
-               for(int i=0;i<firstTable;i++)
-               {
-                   String current1Attr = this.attribute[i];
-                   //if the attribute name already exists in table 1, add a prefix to the table 2 attribute name
-                   if(current1Attr.equalsIgnoreCase(curAttr))
-                   {
-                       curAttr = s_ + curAttr;
-                       break;
-                   }
-               }
-               //carry on
-               resultAttributes[colCounter] = curAttr;
-               resultDomains[colCounter] = table2.domain[table2Counter];
-               //if it is the exception, leave the table2 counter, but back up on the colCounter, then carry on without adding anything
-           }else
-           {
-               colCounter--;
-           }
-           colCounter++;
-           table2Counter++;
-       }
-       
-       //create the new table
-       Table result = new Table (name + count++, resultAttributes, resultDomains, key);
+		Table emptyTable = new Table(name + count++, new String[0],
+				new Class[0], key);
+		// first check the condition input to make sure it is valid
+		String[] splitCondition = condition.split(" ");
+		if (splitCondition.length != 3) {
+			out.println("Invalid join : format must be \"attribute1name == attribute2Name\"");
+			return (emptyTable);
+		}
+		if (!(splitCondition[1].equalsIgnoreCase("=="))) {
+			out.println("Invalid join : comparator must be \"==\"");
+			return (emptyTable);
+		}
+		// make sure the first attribute in the condition exists in the first
+		// table
+		int firstValuePos = this.columnPos(splitCondition[0]);
+		if (firstValuePos == -1) {
+			out.println("Invalid join : first attribute does not exist in calling table");
+			return (emptyTable);
+		}
+		// make sure the second attribute in the condition exists in the second
+		// table
+		int secondValuePos = table2.columnPos(splitCondition[2]);
+		if (secondValuePos == -1) {
+			// The second attribute might be name s.attributename, so check for
+			// it too
+			if (splitCondition[2].startsWith("s.")) {
+				splitCondition[2] = splitCondition[2].substring(2);
+				secondValuePos = table2.columnPos(splitCondition[2]);
+			}
+			// If still not found,then invalid join
+			if (secondValuePos == -1) {
+				out.println("Invalid join : second attribute does not exist in parameter table");
+				return (emptyTable);
+			}
+		}
+		// Validity check successful
 
-       //now we can insert the tuples into the table
-       //go through every tuple of the first table
-       int tupCounter = 0;
-       if(this.tuples.size()==0)
-       {
-           out.println("There are no tuples in the first table, therefore join results in empty table");
-       }
-       while(tupCounter < this.tuples.size())
-       {
-           //make a new tuple
-           Comparable[] newTup = new Comparable[resultTableSize];
-           //go through the first table's attributes and assign as usual
-           colCounter = 0;
-           while(colCounter<firstTable)
-           {
-               int[] pos = new int[1];
-               pos[0] = colCounter;
-               Comparable[] thisTupVal = extractTup(this.tuples.get(tupCounter),pos);
-               newTup[colCounter] = thisTupVal[0];
-               colCounter++;
-           }
-           //find the foreign key value in this table
-           Comparable[] fKey = new Comparable[1];
-           fKey[0] = newTup[firstValuePos];
-           //now find the matching tuple in the second table
-          
-           int[] pos = new int[1];
-           pos[0] = secondValuePos;
-           Comparable[] reference;
-  
-           try{
+		boolean isNull = false;
+		// First figure out how big the table will be (which should = table1 +
+		// table2 - 1)
+		int firstTable = this.attribute.length;
+		int secondTableSize = table2.attribute.length;
+		int resultTableSize = firstTable + (secondTableSize - 1);
+		// create appropriate variables to hold attributes and domains for the
+		// new table
+		String[] resultAttributes = new String[resultTableSize];
+		Class[] resultDomains = new Class[resultTableSize];
+		// initialize these arrays by adding every attribute of table1
+		// and every attribute of table2 EXCEPT for the one named in the
+		// condition
+		int colCounter = 0;
+		// handle the first table
+		while (colCounter < firstTable) {
+			resultAttributes[colCounter] = this.attribute[colCounter];
+			resultDomains[colCounter] = this.domain[colCounter];
+			colCounter++;
+		}
+		// handle the second table
+		int table2Counter = (colCounter - firstTable);
+		while (colCounter < resultTableSize) {
+			// if it isn't the exception, carry on
+			if (table2Counter != secondValuePos) {
+				// check against the first table's attributes to look for
+				// prefixing requirements
+				String s_ = "s_";
+				String curAttr = table2.attribute[table2Counter];
+				for (int i = 0; i < firstTable; i++) {
+					String current1Attr = this.attribute[i];
+					// if the attribute name already exists in table 1, add a
+					// prefix to the table 2 attribute name
+					if (current1Attr.equalsIgnoreCase(curAttr)) {
+						curAttr = s_ + curAttr;
+						break;
+					}
+				}
+				// carry on
+				resultAttributes[colCounter] = curAttr;
+				resultDomains[colCounter] = table2.domain[table2Counter];
+				// if it is the exception, leave the table2 counter, but back up
+				// on the colCounter, then carry on without adding anything
+			} else {
+				colCounter--;
+			}
+			colCounter++;
+			table2Counter++;
+		}
 
-           	reference = (Comparable[])table2.index.get(new KeyType(fKey));
-           }catch(java.lang.ClassCastException e)
-           {
-           	out.println("Sorry, join conditions invalid: attribute 2 is not primary key ");
-           	return(emptyTable);
-           }
+		// create the new table
+		Table result = new Table(name + count++, resultAttributes,
+				resultDomains, key);
 
-           //if we get here, the correct tuple number is in tup2Counter
-           int col2Counter = 0;
-           //add the values of the referenced tuple to the result tuple
-           
-           while(colCounter<resultTableSize)
-           {
-               if(col2Counter!=secondValuePos)
-               {
-                   int[] pos2 = new int[1];
-                   pos2[0] = col2Counter;
-                   //Comparable[] referencedTup = extractTup(table2.tuples.get(tup2Counter),pos2);
-                   try{
-                   	newTup[colCounter] = reference[col2Counter];
-                   }catch(Exception e)
-                   {
-                   	isNull = true;
-                   	break;
-                   	//out.println("Invalid join : attribute 1 is not a foreign key to attribute 2");
-                   	//return(emptyTable);
-                   }
-                   //we still have to skip the exception (join condition attribute)
-               }else
-               {
-                   colCounter--;
-               }
-               colCounter++;
-               col2Counter++;
-           }
+		// now we can insert the tuples into the table
+		// go through every tuple of the first table
+		int tupCounter = 0;
+		if (this.tuples.size() == 0) {
+			out.println("There are no tuples in the first table, therefore join results in empty table");
+		}
+		while (tupCounter < this.tuples.size()) {
+			// make a new tuple
+			Comparable[] newTup = new Comparable[resultTableSize];
+			// go through the first table's attributes and assign as usual
+			colCounter = 0;
+			while (colCounter < firstTable) {
+				int[] pos = new int[1];
+				pos[0] = colCounter;
+				Comparable[] thisTupVal = extractTup(
+						this.tuples.get(tupCounter), pos);
+				newTup[colCounter] = thisTupVal[0];
+				colCounter++;
+			}
+			// find the foreign key value in this table
+			Comparable[] fKey = new Comparable[1];
+			fKey[0] = newTup[firstValuePos];
+			// now find the matching tuple in the second table
 
-           //insert the resulting tuple
-           if(!isNull){result.insert(newTup);}
-           isNull = false;
+			int[] pos = new int[1];
+			pos[0] = secondValuePos;
+			Comparable[] reference;
 
-           //increment
-           tupCounter++;
-       }
-       
-       //all done
-       return result;
+			try {
+
+				reference = (Comparable[]) table2.index.get(new KeyType(fKey));
+			} catch (java.lang.ClassCastException e) {
+				out.println("Sorry, join conditions invalid: attribute 2 is not primary key ");
+				return (emptyTable);
+			}
+
+			// if we get here, the correct tuple number is in tup2Counter
+			int col2Counter = 0;
+			// add the values of the referenced tuple to the result tuple
+
+			while (colCounter < resultTableSize) {
+				if (col2Counter != secondValuePos) {
+					int[] pos2 = new int[1];
+					pos2[0] = col2Counter;
+					// Comparable[] referencedTup =
+					// extractTup(table2.tuples.get(tup2Counter),pos2);
+					try {
+						newTup[colCounter] = reference[col2Counter];
+					} catch (Exception e) {
+						isNull = true;
+						break;
+						// out.println("Invalid join : attribute 1 is not a foreign key to attribute 2");
+						// return(emptyTable);
+					}
+					// we still have to skip the exception (join condition
+					// attribute)
+				} else {
+					colCounter--;
+				}
+				colCounter++;
+				col2Counter++;
+			}
+
+			// insert the resulting tuple
+			if (!isNull) {
+				result.insert(newTup);
+			}
+			isNull = false;
+
+			// increment
+			tupCounter++;
+		}
+
+		// all done
+		return result;
 	} // join
 
 	/***************************************************************************
@@ -574,7 +572,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param table2
 	 *            the rhs table
-	 *            
+	 * 
 	 * @return whether the two tables are compatible
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -641,10 +639,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputStr
 	 *            The input string
-	 *            
+	 * 
 	 * @param inputType
 	 *            Class type of the operand
-	 *            
+	 * 
 	 * @return the Comparable object
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -686,10 +684,10 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param postfix
 	 *            the postfix expression for the condition
-	 *            
+	 * 
 	 * @param tup
 	 *            the tuple to check
-	 *            
+	 * 
 	 * @return whether to keep the tuple
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -728,24 +726,53 @@ public class Table implements Serializable, Cloneable {
 	 * @param tup
 	 *            the array of attribute values forming the tuple
 	 * @return a tuple packed into a record/byte-buffer
-	 * 
-	 *         byte [] pack (Comparable [] tup) { byte [] record = new byte
-	 *         [tupleSize ()]; byte [] b = null; int s = 0; int i = 0;
-	 * 
-	 *         for (int j = 0; j < domain.length; j++) { switch (domain
-	 *         [j].getName ()) { case "java.lang.Integer": b =
-	 *         Conversions.int2ByteArray ((Integer) tup [j]); s = 4; break; case
-	 *         "java.lang.String": b = ((String) tup [j]).getBytes (); s = 64;
-	 *         break;
-	 * 
-	 *         //-----------------\\ // TO BE IMPLEMENTED \\
-	 *         //---------------------\\
-	 * 
-	 *         } // switch if (b == null) { out.println
-	 *         ("Table.pack: byte array b is null"); return null; } // if for
-	 *         (int k = 0; k < s; k++) record [i++] = b [k]; } // for return
-	 *         record; } // pack
 	 */
+	public byte[] pack(Comparable[] tup) {
+		byte[] record = new byte[tupleSize()];
+		byte[] b = null;
+		int s = 0;
+		int i = 0;
+		for (int j = 0; j < domain.length; j++) {
+			switch (domain[j].getName()) {
+			case "java.lang.Byte":
+				b = new byte[1];
+				b[0] = (Byte) tup[j];
+				s = 1;
+				break;
+			case "java.lang.Short":
+				b = Conversions.short2ByteArray((Short) tup[j]);
+				s = 2;
+				break;
+			case "java.lang.Integer":
+				b = Conversions.int2ByteArray((Integer) tup[j]);
+				s = 4;
+				break;
+			case "java.lang.Long":
+				b = Conversions.long2ByteArray((Long) tup[j]);
+				s = 8;
+				break;
+			case "java.lang.Float":
+				b = Conversions.float2ByteArray((Float) tup[j]);
+				s = 4;
+				break;
+			case "java.lang.Double":
+				b = Conversions.double2ByteArray((Double) tup[j]);
+				s = 8;
+				break;
+			case "java.lang.String":
+				b = ((String) tup[j]).getBytes();
+				s = 64;
+				break;
+			}
+			if (b == null) {
+				out.println("Table.pack: byte array b is null");
+				return null;
+			}
+			for (int k = 0; k < s; k++)
+				record[i++] = b[k];
+		}
+		return record;
+	}
 
 	/***************************************************************************
 	 * Unpack the record/byte-buffer (array of bytes) to reconstruct a tuple.
@@ -753,32 +780,52 @@ public class Table implements Serializable, Cloneable {
 	 * @param record
 	 *            the byte-buffer in which the tuple is packed
 	 * @return an unpacked tuple
-	 * 
-	 *         Comparable [] unpack (byte [] record) { //-----------------\\ //
-	 *         TO BE IMPLEMENTED \\ //---------------------\\
-	 * 
-	 *         return null; } // unpack
 	 */
+	public Comparable[] unpack(byte[] record) {
+		// -----------------\\
+		// TO BE IMPLEMENTED \\
+		// ---------------------\\
 
+		return null;
+	} // unpack
+	
 	/***************************************************************************
 	 * Determine the size of tuples in this table in terms of the number of
 	 * bytes required to store it in a record/byte-buffer.
 	 * 
 	 * @return the size of packed-tuples in bytes
-	 * 
-	 *         private int tupleSize () { int s = 0;
-	 * 
-	 *         for (int j = 0; j < domain.length; j++) { switch (domain
-	 *         [j].getName ()) { case "java.lang.Integer": s += 4; break; case
-	 *         "java.lang.String": s += 64; break;
-	 * 
-	 *         //-----------------\\ // TO BE IMPLEMENTED \\
-	 *         //---------------------\\
-	 * 
-	 *         } // if } // for
-	 * 
-	 *         return s; } // tupleSize
 	 */
+	private int tupleSize() {
+		int s = 0;
+
+		for (int j = 0; j < domain.length; j++) {
+			switch (domain[j].getName()) {
+			case "java.lang.Byte":
+				s += 1;
+				break;
+			case "java.lang.Short":
+				s += 2;
+				break;
+			case "java.lang.Integer":
+				s += 4;
+				break;
+			case "java.lang.Long":
+				s += 8;
+				break;
+			case "java.lang.Float":
+				s += 4;
+				break;
+			case "java.lang.Double":
+				s += 8;
+				break;
+			case "java.lang.String":
+				s += 64;
+				break;
+			} // if
+		} // for
+
+		return s;
+	} // tupleSize
 
 	// ------------------------ Static Utility Methods
 	// --------------------------
@@ -797,7 +844,7 @@ public class Table implements Serializable, Cloneable {
 	private static boolean typeCheck(Comparable[] tup, Class[] dom) {
 		if (tup.length != dom.length)
 			return false;
-		for (int i = 0; i<tup.length; i++){
+		for (int i = 0; i < tup.length; i++) {
 			if (!tup[i].getClass().equals(dom[i]))
 				return false;
 		}
@@ -850,7 +897,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputStr
 	 *            The input operator
-	 *            
+	 * 
 	 * @return Priority for that operator
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -879,7 +926,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @param inputInt
 	 *            The priority
-	 *            
+	 * 
 	 * @return The operator string
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
@@ -1047,7 +1094,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
-	public int getTupleCount(){
+	public int getTupleCount() {
 		return tuples.size();
 	}
 
