@@ -732,8 +732,8 @@ public class Table implements Serializable, Cloneable {
 		byte[] b = null;
 		int s = 0;
 		int i = 0;
-		for (int j = 0; j < domain.length; j++) {
-			switch (domain[j].getName()) {
+		for (int j = 0; j < this.domain.length; j++) {
+			switch (this.domain[j].getName()) {
 			case "java.lang.Byte":
 				b = new byte[1];
 				b[0] = (Byte) tup[j];
