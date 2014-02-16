@@ -760,8 +760,11 @@ public class Table implements Serializable, Cloneable {
 				s = 8;
 				break;
 			case "java.lang.String":
-				b = ((String) tup[j]).getBytes();
-				s = 64;
+				String len = String.format("%02d", ((String) tup[j]).length());
+				byte[] temp = (len + (String) tup[j]).getBytes(); 
+				s = 66;
+				b = new byte[s];
+				System.arraycopy(temp, 0, b, 0, temp.length);
 				break;
 			}
 			if (b == null) {
@@ -782,13 +785,83 @@ public class Table implements Serializable, Cloneable {
 	 * @return an unpacked tuple
 	 */
 	public Comparable[] unpack(byte[] record) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		Comparable[] tuple = new Comparable[this.domain.length];
 
-		return null;
+		byte[] b = null;
+		int i = 0;
+		int s = 0;
+		for (int j = 0; j < this.domain.length; j++) {
+			switch (this.domain[j].getName()) {
+			case "java.lang.Byte":
+				tuple[j] = (byte) record[i];
+				i++;
+				break;
+			case "java.lang.Short":
+				s = 2;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = Conversions.byteArray2Short(b);
+				break;
+			case "java.lang.Integer":
+				s = 4;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = Conversions.byteArray2Int(b);
+				break;
+			case "java.lang.Long":
+				s = 8;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = Conversions.byteArray2Long(b);
+				break;
+			case "java.lang.Float":
+				s = 4;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = Conversions.byteArray2Float(b);
+				break;
+			case "java.lang.Double":
+				s = 8;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = Conversions.byteArray2Double(b);
+				break;
+			case "java.lang.String":
+				s = 66;
+				b = new byte[s];
+				for (int k = 0; k < s; k++) {
+					b[k] = record[i + k];
+				}
+				i += s;
+				tuple[j] = new String(b);
+				int len = Integer.parseInt(((String) tuple[j]).substring(0, 2));
+				tuple[j] = ((String) tuple[j]).substring(2, len + 2);
+				break;
+			}
+			if (tuple[j] == null) {
+				out.println("Table.pack: There was an error here!");
+				return null;
+			}
+		}
+
+		return tuple;
 	} // unpack
-	
+
 	/***************************************************************************
 	 * Determine the size of tuples in this table in terms of the number of
 	 * bytes required to store it in a record/byte-buffer.
@@ -819,7 +892,7 @@ public class Table implements Serializable, Cloneable {
 				s += 8;
 				break;
 			case "java.lang.String":
-				s += 64;
+				s += 66;
 				break;
 			} // if
 		} // for
