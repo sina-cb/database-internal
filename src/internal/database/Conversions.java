@@ -72,4 +72,21 @@ public class Conversions {
 		return null;
 	} // double2ByteArray
 
+	public static Long arrayToLong(byte[] data){
+		Long result = new Long(0);
+		
+		for (int i = 0; i < data.length; i++){
+			result += data[i] * (long)Math.pow(2.0, 8 * (data.length - i - 1));
+		}
+		
+		return result;
+	}
+	
+	public static void main(String[] args){
+		Long temp = new Long(12);
+		byte[] arr = Conversions.long2ByteArray(temp);
+		
+		Long result = Conversions.arrayToLong(arr);
+	}
+	
 } // Conversions
