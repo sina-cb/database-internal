@@ -8,10 +8,6 @@ package internal.database;
 
 import static java.lang.System.out;
 
-import java.util.Arrays;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 /*******************************************************************************
  * The MovieDB class makes a Movie Database. It serves as a template for making
  * other databases. See "Database Systems: The Complete Book", second edition,
@@ -28,17 +24,17 @@ class MovieDB {
 	public static void main(String[] args) {
 		out.println();
 
-		Table test = new Table("test", "name number ave add aaaa", "String Integer Double Float Byte", "name");
+		/*Table test = new Table("test", "name number ave add aaaa", "String Integer Double Float Byte", "name");
 		Comparable[] tup1 = new Comparable[] {"Arashaaaa", 1, 12.4, 12.3f, (new Integer(12)).byteValue()};
 		
 		byte[] a = test.pack(tup1);
 		
 		Comparable[] res = test.unpack(a);
 		
-		out.print(Arrays.deepEquals(tup1, res));
+		out.print(Arrays.deepEquals(tup1, res));*/
 		
 		
-		/*Table movie = new Table("movie",
+		Table movie = new Table("movie",
 				"title year length genre studioName producerNo",
 				"String Integer Integer String String Integer", "title year");
 
@@ -126,7 +122,7 @@ class MovieDB {
 
 		out.println();
 		Table t_join = movie.join("studioName == name", studio);
-		t_join.print();*/
+		t_join.print();
 	} // main
 
 } // MovieDB class

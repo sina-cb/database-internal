@@ -9,7 +9,6 @@ package internal.database;
 import static java.lang.System.out;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -85,8 +84,8 @@ public class Table implements Serializable, Cloneable {
 		attribute = _attribute;
 		domain = _domain;
 		key = _key;
-		tuples = new ArrayList<>(); // also try FileList, see below
-		// tuples = new FileList (this, tupleSize ());
+		// tuples = new ArrayList<>(); // also try FileList, see below
+		tuples = new FileList(this, tupleSize());
 		index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
@@ -205,6 +204,7 @@ public class Table implements Serializable, Cloneable {
 		// Compatibility check
 		if (!this.compatible(table2)) {
 			out.println("Incompatible Tables");
+			return this;
 		}
 
 		else {
@@ -258,16 +258,16 @@ public class Table implements Serializable, Cloneable {
 			// Check whether tuples in Table1 are Equal to tuples in Table2 or
 			// not
 			for (Comparable[] tup1 : this.tuples) {
-				boolean exists = false;
-				for (Comparable[] tup2 : table2.tuples) {
-					if (compareTuples(tup1, tup2)) {
-						exists = true;
-						break;
-					}
+				Comparable[] keyVal = new Comparable[table2.key.length];
+				int[] cols = match(result.key);
+
+				for (int j = 0; j < keyVal.length; j++) {
+					keyVal[j] = tup1[cols[j]];
 				}
-				// Add tuples to the result table
-				if (exists == false)
+
+				if (!table2.index.containsKey(new KeyType(keyVal))) {
 					result.insert(tup1);
+				}
 			}
 		}
 
@@ -285,6 +285,7 @@ public class Table implements Serializable, Cloneable {
 	 * 
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
+	@SuppressWarnings("unused")
 	private boolean compareTuples(Comparable[] tup1, Comparable[] tup2) {
 		for (int i = 0; i < tup1.length; i++) {
 			if (tup1[i].compareTo(tup2[i]) != 0) {
@@ -759,9 +760,13 @@ public class Table implements Serializable, Cloneable {
 				b = Conversions.double2ByteArray((Double) tup[j]);
 				s = 8;
 				break;
+			case "java.lang.Character":
+				b = ((Character) tup[j]).toString().getBytes();
+				s = 1;
+				break;
 			case "java.lang.String":
 				String len = String.format("%02d", ((String) tup[j]).length());
-				byte[] temp = (len + (String) tup[j]).getBytes(); 
+				byte[] temp = (len + (String) tup[j]).getBytes();
 				s = 66;
 				b = new byte[s];
 				System.arraycopy(temp, 0, b, 0, temp.length);
@@ -771,8 +776,9 @@ public class Table implements Serializable, Cloneable {
 				out.println("Table.pack: byte array b is null");
 				return null;
 			}
-			for (int k = 0; k < s; k++)
+			for (int k = 0; k < s; k++) {
 				record[i++] = b[k];
+			}
 		}
 		return record;
 	}
@@ -841,6 +847,10 @@ public class Table implements Serializable, Cloneable {
 				i += s;
 				tuple[j] = Conversions.byteArray2Double(b);
 				break;
+			case "java.lang.Character":
+				tuple[j] = (char) record[i];
+				i++;
+				break;
 			case "java.lang.String":
 				s = 66;
 				b = new byte[s];
@@ -890,6 +900,9 @@ public class Table implements Serializable, Cloneable {
 				break;
 			case "java.lang.Double":
 				s += 8;
+				break;
+			case "java.lang.Character":
+				s += 1;
 				break;
 			case "java.lang.String":
 				s += 66;
