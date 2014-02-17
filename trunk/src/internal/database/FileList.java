@@ -68,23 +68,29 @@ public class FileList extends AbstractList<Comparable[]> implements
 	/***************************************************************************
 	 * Add a new tuple into the file list by packing it into a record and
 	 * writing this record to the random access file. Write the record either at
-	 * the end-of-file or into a empty slot.
+	 * the end-of-file or into an empty slot.
 	 * 
 	 * @param tuple
 	 *            the tuple to add
 	 * @return whether the addition succeeded
 	 */
 	public boolean add(Comparable[] tuple) {
-		byte[] record = null; // FIX: table.pack (tuple);
+		byte[] record = table.pack(tuple);
 
 		if (record.length != recordSize) {
 			out.println("FileList.add: wrong record size " + record.length);
 			return false;
 		} // if
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		try {
+			this.file.seek(this.file.length());
+			this.file.write(record);
+			
+			nRecords++;
+		} catch (IOException e) {
+			System.err.println("There was an error while writing to file");
+			e.printStackTrace();
+		}
 
 		return true;
 	} // add
@@ -100,11 +106,16 @@ public class FileList extends AbstractList<Comparable[]> implements
 	public Comparable[] get(int i) {
 		byte[] record = new byte[recordSize];
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		try {
+			file.seek(i * recordSize);
+			file.read(record, 0, recordSize);
+		} catch (IOException e) {
+			System.err
+					.println("There was an error while reading from the file.");
+			e.printStackTrace();
+		}
 
-		return null; // FIX: table.unpack (record);
+		return table.unpack(record);
 	} // get
 
 	/***************************************************************************
