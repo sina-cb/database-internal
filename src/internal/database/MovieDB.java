@@ -66,8 +66,6 @@ class MovieDB {
 		movie.insert(film3);
 		movie.print();
 		
-		
-		
 		Comparable[] film4 = { "Galaxy_Quest", 1999, 104, "comedy",
 				"DreamWorks", 67890 };
 		out.println();
@@ -105,24 +103,45 @@ class MovieDB {
 		studio.print();
 
 		out.println();
-		Table t_project = movie.project("title year");
-		t_project.print();
+		Table select_case1 = movie.select("title == 'Star_Wars'");
+		select_case1.print();
+		
+		out.println();
+		Table select_case2 = movie.select("length > 100 & studioName == 'Universal' | genre == 'sciFi'");
+		select_case2.print();
+		
+		out.println();
+		Table project_case1 = movie.project("title year");
+		project_case1.print();
+		
+		out.println();
+		Table project_case2 = cinema.project("title genre studioName");
+		project_case2.print();
+		
+		out.println();
+		Table union_case1 = movie.union(cinema);
+		union_case1.print();
+		
+		out.println();
+		Table union_case2 = movieStar.union(studio);
+		union_case2.print();
 
 		out.println();
-		Table t_select = movie.select("title == 'Star_Wars'");
-		t_select.print();
-
+		Table minus_case1 = movie.minus(cinema);
+		minus_case1.print();
+		
 		out.println();
-		Table t_union = movie.union(cinema);
-		t_union.print();
-
+		Table minus_case2 = movieStar.minus(studio);
+		minus_case2.print();
+		
 		out.println();
-		Table t_minus = movie.minus(cinema);
-		t_minus.print();
-
+		Table join_case1 = movie.join("studioName == name", studio);
+		join_case1.print();
+		
 		out.println();
-		Table t_join = movie.join("studioName == name", studio);
-		t_join.print();
+		Table join_case2 = movieStar.join("name == starName", starsIn);
+		join_case2.print();
+		
 	} // main
 
 } // MovieDB class
