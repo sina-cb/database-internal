@@ -58,7 +58,14 @@ public class FileList extends AbstractList<Comparable[]> implements
 		recordSize = _recordSize;
 
 		try {
+			File temp = new File(table.getName() + EXT);
+			if (temp.exists() && !temp.delete()){
+				System.err.println("Please remove this file and try to run the project again. File --> " + temp.getAbsolutePath());
+				System.exit(-1);
+			}
+			
 			file = new RandomAccessFile(table.getName() + EXT, "rw");
+			
 		} catch (FileNotFoundException ex) {
 			file = null;
 			out.println("FileList.constructor: unable to open - " + ex);

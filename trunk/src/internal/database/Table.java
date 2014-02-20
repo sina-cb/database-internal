@@ -153,7 +153,19 @@ public class Table implements Serializable, Cloneable {
 		Table result = new Table(name + count++, pAttribute, colDomain, newKey);
 
 		for (Comparable[] tup : tuples) {
-			result.tuples.add(extractTup(tup, colPos));
+			Comparable[] current = tup;
+			Comparable[] keyVal = new Comparable[result.key.length];
+			int[] cols = match(result.key);
+
+			for (int j = 0; j < keyVal.length; j++) {
+				keyVal[j] = current[cols[j]];
+			}
+
+			// Insert only those keys which are in table2 but not in table
+			// one
+			if (!(result.index.containsKey(new KeyType(keyVal)))) {
+				result.insert(extractTup(tup, colPos));
+			}
 		} // for
 
 		return result;
@@ -179,7 +191,7 @@ public class Table implements Serializable, Cloneable {
 
 		for (Comparable[] tup : tuples) {
 			if (evalTup(postfix, tup))
-				result.tuples.add(tup);
+				result.insert(tup);
 		} // for
 
 		return result;
