@@ -9,6 +9,7 @@ package internal.database;
 import static java.lang.System.out;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -373,10 +374,10 @@ public class Table implements Serializable, Cloneable {
 
 		boolean isNull = false;
 		// First figure out how big the table will be (which should = table1 +
-		// table2 - 1)
+		// table2)
 		int firstTable = this.attribute.length;
 		int secondTableSize = table2.attribute.length;
-		int resultTableSize = firstTable + (secondTableSize - 1);
+		int resultTableSize = firstTable + secondTableSize;
 		// create appropriate variables to hold attributes and domains for the
 		// new table
 		String[] resultAttributes = new String[resultTableSize];
@@ -394,8 +395,6 @@ public class Table implements Serializable, Cloneable {
 		// handle the second table
 		int table2Counter = (colCounter - firstTable);
 		while (colCounter < resultTableSize) {
-			// if it isn't the exception, carry on
-			if (table2Counter != secondValuePos) {
 				// check against the first table's attributes to look for
 				// prefixing requirements
 				String s_ = "s_";
@@ -414,9 +413,6 @@ public class Table implements Serializable, Cloneable {
 				resultDomains[colCounter] = table2.domain[table2Counter];
 				// if it is the exception, leave the table2 counter, but back up
 				// on the colCounter, then carry on without adding anything
-			} else {
-				colCounter--;
-			}
 			colCounter++;
 			table2Counter++;
 		}
@@ -444,57 +440,24 @@ public class Table implements Serializable, Cloneable {
 				newTup[colCounter] = thisTupVal[0];
 				colCounter++;
 			}
-			// find the foreign key value in this table
-			Comparable[] fKey = new Comparable[1];
-			fKey[0] = newTup[firstValuePos];
-			// now find the matching tuple in the second table
 
-			int[] pos = new int[1];
-			pos[0] = secondValuePos;
-			Comparable[] reference;
-
-			try {
-
-				reference = (Comparable[]) table2.index.get(new KeyType(fKey));
-			} catch (java.lang.ClassCastException e) {
-				out.println("Sorry, join conditions invalid: attribute 2 is not primary key ");
-				return (emptyTable);
-			}
-
-			// if we get here, the correct tuple number is in tup2Counter
-			int col2Counter = 0;
-			// add the values of the referenced tuple to the result tuple
-
-			while (colCounter < resultTableSize) {
-				if (col2Counter != secondValuePos) {
-					int[] pos2 = new int[1];
-					pos2[0] = col2Counter;
-					// Comparable[] referencedTup =
-					// extractTup(table2.tuples.get(tup2Counter),pos2);
-					try {
-						newTup[colCounter] = reference[col2Counter];
-					} catch (Exception e) {
-						isNull = true;
-						break;
-						// out.println("Invalid join : attribute 1 is not a foreign key to attribute 2");
-						// return(emptyTable);
-					}
-					// we still have to skip the exception (join condition
-					// attribute)
-				} else {
-					colCounter--;
+			List<Comparable[]> reference = new ArrayList<>();
+			for (int i = 0; i < table2.tuples.size(); i++){
+				Comparable[] temp = table2.tuples.get(i);
+				if (temp[secondValuePos].equals(newTup[firstValuePos])){
+					reference.add(temp);
 				}
-				colCounter++;
-				col2Counter++;
 			}
-
-			// insert the resulting tuple
-			if (!isNull) {
+			
+			for (Comparable[] tup : reference){
+				int i = 0;
+				while (colCounter + i < resultTableSize) {
+					newTup[i + colCounter] = tup[i];
+					i++;
+				}
 				result.insert(newTup);
 			}
-			isNull = false;
-
-			// increment
+			
 			tupCounter++;
 		}
 
