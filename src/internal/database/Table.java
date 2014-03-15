@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.TreeMap;
 
 /*******************************************************************************
  * This class implements relational database tables (including attribute names,
@@ -65,7 +64,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Index into tuples (maps key to tuple).
 	 */
-	private final Map<KeyType, Comparable[]> index;
+	private final Map<KeyType, Integer> index;
 
 	/***************************************************************************
 	 * Construct an empty table from the meta-data specifications.
@@ -87,7 +86,7 @@ public class Table implements Serializable, Cloneable {
 		key = _key;
 		// tuples = new ArrayList<>(); // also try FileList, see below
 		tuples = new FileList(this, tupleSize());
-		index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
+		index = new ExtHash<>(KeyType.class, Integer.class, 2);//new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
 	/***************************************************************************
@@ -372,7 +371,6 @@ public class Table implements Serializable, Cloneable {
 		}
 		// Validity check successful
 
-		boolean isNull = false;
 		// First figure out how big the table will be (which should = table1 +
 		// table2)
 		int firstTable = this.attribute.length;
@@ -483,7 +481,7 @@ public class Table implements Serializable, Cloneable {
 			int[] cols = match(key);
 			for (int j = 0; j < keyVal.length; j++)
 				keyVal[j] = tup[cols[j]];
-			index.put(new KeyType(keyVal), tup);
+			index.put(new KeyType(keyVal), this.getTupleCount() - 1);
 			return true;
 		} else {
 			return false;
