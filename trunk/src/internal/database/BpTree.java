@@ -6,12 +6,19 @@ package internal.database;
  * @author  John Miller
  */
 
-import java.io.*;
-import java.lang.reflect.Array;
-
 import static java.lang.System.out;
 
-import java.util.*;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 /*******************************************************************************
  * This class provides B+Tree maps. B+Trees are used as multi-level index
@@ -44,6 +51,10 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		int nKeys;
 		K[] key;
 		Object[] ref;
+		
+		Node parent;
+		Node left;
+		Node right;
 
 		@SuppressWarnings("unchecked")
 		Node(boolean _isLeaf) {
@@ -62,7 +73,7 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	/**
 	 * The root of the B+Tree
 	 */
-	private final Node root;
+	private Node root;
 
 	/**
 	 * The counter for the number nodes accessed (for performance testing).
@@ -277,27 +288,125 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the parent node
 	 */
 	private void insert(K key, V ref, Node n, Node p) {
-		if (n.nKeys < ORDER - 1) {
-			for (int i = 0; i < n.nKeys; i++) {
-				K k_i = n.key[i];
-				if (key.compareTo(k_i) < 0) {
-					wedge(key, ref, n, i);
-				} else if (key.equals(k_i)) {
-					out.println("BpTree:insert: attempt to insert duplicate key = "
-							+ key);
-				} // if
-			} // for
-			wedge(key, ref, n, n.nKeys);
-		} else {
-			Node sib = split(key, ref, n);
+		
+		if (n.isLeaf){
 
-			// -----------------\\
-			// TO BE IMPLEMENTED \\
-			// ---------------------\\
+			boolean inserted = false;
+			if (n.nKeys < ORDER - 1){
+				for (int i = 0; i < n.nKeys; i++){
+					if (key.compareTo(n.key[i]) < 0){
+						wedge(key, ref, n, i);
+						inserted = true;
+						break;
+					}else if (key.compareTo(n.key[i]) == 0){
+						out.println("BpTree:insert: attempt to insert duplicate key = " + key);
+					}
+				}
+				if (!inserted){
+					wedge(key, ref, n, n.nKeys);
+				}
+			}else {
+				Node newNode = split(key, ref, n);
+				K tempKey;
+				Node rightRef;
+				Node leftRef;
+				
+				tempKey = newNode.key[0];
+				leftRef = n;
+				rightRef = newNode;
 
-		} // if
+				if (p == null){
+					Node parent = new Node(false);
+					p = parent;
+					root = parent;
+					n.parent = parent;
+					newNode.parent = parent;
+					
+					parent.ref[0] = n;
+					insertIntoParent(tempKey, leftRef, rightRef, parent);
+				}else{
+					newNode.parent = p;
+					insertIntoParent(tempKey, leftRef, rightRef, p);
+				}
+				
+				for (int i = 0; i < p.nKeys; i++){
+					if (p.ref[i] == n){
+						if (i - 1 >= 0){
+							p.key[i - 1] = n.key[0];
+						}
+						break;
+					}
+				}
+				
+			}
+			
+		}else{
+			boolean inserted = false;
+			for (int i = 0; i < n.nKeys; i++){
+				if (key.compareTo(n.key[i]) < 0){
+					insert(key, ref, (Node) n.ref[i], n);
+					inserted = true;
+					break;
+				}
+			}
+			if (!inserted){
+				insert(key, ref, (Node) n.ref[n.nKeys], n);
+			}
+		}
+		
 	} // insert
 
+	
+	private void insertIntoParent(K key, Node leftRef, Node rightRef, Node parent){
+		
+		if (parent.nKeys < ORDER - 1){
+			
+			if (parent.nKeys == 0){
+				parent.ref[0] = leftRef;
+			}
+			
+			boolean inserted = false;
+			for (int i = 0; i < parent.nKeys; i++){
+				if (key.compareTo(parent.key[i]) < 0){
+					wedge(key, (V) rightRef, parent, i);
+					inserted = true;
+					break;
+				}else if (key.compareTo(parent.key[i]) == 0){
+					out.println("BpTree:insert: attempt to insert duplicate key = " + key);
+				}
+			}
+			if (!inserted){
+				wedge(key, (V) rightRef, parent, parent.nKeys);
+			}
+		}else{
+			
+			Node newNode = split(key, (V) rightRef, parent);
+			K tempKey;
+			Node tempRightRef;
+			Node tempLeftRef;
+			
+			tempKey = newNode.key[0];
+			for (int i = 0; i < newNode.nKeys - 1; i++){
+				newNode.key[i] = newNode.key[i + 1];
+			}
+			for (int i = 0; i < newNode.nKeys; i++){
+				newNode.ref[i] = newNode.ref[i + 1];
+			}
+			newNode.nKeys--;
+
+			tempRightRef = newNode;
+			tempLeftRef = parent;
+
+			if (parent.parent == null){
+				parent.parent = new Node(false);
+				root = parent.parent;
+			}
+			
+			insertIntoParent(tempKey, tempLeftRef, tempRightRef, parent.parent);
+		}
+		
+	}
+	
 	/***************************************************************************
 	 * Wedge the key-ref pair into node n.
 	 * 
@@ -311,15 +420,25 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the insertion position within node n
 	 */
 	private void wedge(K key, V ref, Node n, int i) {
-		for (int j = n.nKeys; j > i; j--) {
-			n.key[j] = n.key[j - 1];
-			n.ref[j] = n.ref[j - 1];
-		} // for
-		n.key[i] = key;
-		n.ref[i] = ref;
-		n.nKeys++;
+		if (n.isLeaf){
+			for (int j = n.nKeys; j > i; j--) {
+				n.key[j] = n.key[j - 1];
+				n.ref[j] = n.ref[j - 1];
+			} // for
+			n.key[i] = key;
+			n.ref[i] = ref;
+			n.nKeys++;
+		}else{
+			for (int j = n.nKeys; j > i; j--) {
+				n.key[j] = n.key[j - 1];
+				n.ref[j + 1] = n.ref[j];
+			} // for
+			n.key[i] = key;
+			n.ref[i + 1] = ref;
+			n.nKeys++;
+		}
 	} // wedge
-
+	
 	/***************************************************************************
 	 * Split node n and return the newly created node.
 	 * 
@@ -331,15 +450,74 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the current node
 	 */
 	private Node split(K key, V ref, Node n) {
-		out.println("split not implemented yet");
+		List<Pair> pairs = new ArrayList<>();
+		Object firstRef = n.ref[0];
+		
+		if (!n.isLeaf){
+			for (int i = 0; i < n.nKeys; i++){
+				pairs.add(new Pair(n.key[i], n.ref[i + 1]));
+			}
+		}else{
+			for (int i = 0; i < n.nKeys; i++){
+				pairs.add(new Pair(n.key[i], n.ref[i]));
+			}
+		}
+		pairs.add(new Pair(key, ref));
+		
+		Comparator<Pair> comparator = new Comparator<BpTree<K,V>.Pair>() {
+			public int compare(Pair o1, Pair o2) {
+				return o1.key.compareTo(o2.key);
+			}
+		};
+		Collections.sort(pairs, comparator);
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
-		return null;
+		Node newNode = new Node(n.isLeaf);
+		if (!n.isLeaf){
+			n.ref[0] = firstRef;
+			n.nKeys = 0;
+			for (int i = 0; i < ORDER / 2; i++){
+				n.key[i] = pairs.get(i).key;
+				n.ref[i + 1] = pairs.get(i).ref;
+				n.nKeys++;
+			}
+			
+			for (int i = ORDER / 2; i < pairs.size(); i++){
+				newNode.key[i - ORDER / 2] = pairs.get(i).key;
+				newNode.ref[i - ORDER / 2 + 1] = pairs.get(i).ref;
+				newNode.nKeys++;
+			}
+		}else{
+			n.nKeys = 0;
+			for (int i = 0; i < ORDER / 2; i++){
+				n.key[i] = pairs.get(i).key;
+				n.ref[i] = pairs.get(i).ref;
+				n.nKeys++;
+			}
+			
+			for (int i = ORDER / 2; i < pairs.size(); i++){
+				newNode.key[i - ORDER / 2] = pairs.get(i).key;
+				newNode.ref[i - ORDER / 2] = pairs.get(i).ref;
+				newNode.nKeys++;
+			}
+		}
+		
+		return newNode;
 	} // split
 
+	/***************************************************************************
+	 * This inner class is used to hold all pairs of Keys and their References for the sorting purpose. 
+	 * @author Sina, Arash, Navid, Sam
+	 */
+	private class Pair {
+		public K key;
+		public Object ref;
+		
+		public Pair(K key, Object ref){
+			this.key = key;
+			this.ref = ref;
+		}
+	}		
+	
 	/***************************************************************************
 	 * The main method used for testing.
 	 * 
@@ -348,9 +526,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            insert)
 	 */
 	public static void main(String[] args) {
-		BpTree<Integer, Integer> bpt = new BpTree<>(Integer.class,
-				Integer.class);
-		int totKeys = 10;
+		BpTree<Integer, Integer> bpt = new BpTree<>(Integer.class, Integer.class);
+		/*int totKeys = 10;
 		if (args.length == 1)
 			totKeys = Integer.valueOf(args[0]);
 		for (int i = 1; i < totKeys; i += 2)
@@ -361,7 +538,22 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		} // for
 		out.println("-------------------------------------------");
 		out.println("Average number of nodes accessed = " + bpt.count
-				/ (double) totKeys);
+				/ (double) totKeys);*/
+		
+		bpt.put(new Integer(50), new Integer(5000));
+		bpt.put(new Integer(10), new Integer(1000));
+		bpt.put(new Integer(40), new Integer(4000));
+		bpt.put(new Integer(20), new Integer(2000));
+		bpt.put(new Integer(60), new Integer(6000));
+		bpt.put(new Integer(70), new Integer(7000));
+		bpt.put(new Integer(80), new Integer(8000));
+		bpt.put(new Integer(90), new Integer(9000));
+		bpt.put(new Integer(100), new Integer(10000));
+		bpt.put(new Integer(110), new Integer(11000));
+		bpt.put(new Integer(120), new Integer(12000));
+		bpt.put(new Integer(130), new Integer(13000));
+		bpt.put(new Integer(140), new Integer(14000));
+		bpt.put(new Integer(150), new Integer(15000));
 	} // main
 
 } // BpTree class
