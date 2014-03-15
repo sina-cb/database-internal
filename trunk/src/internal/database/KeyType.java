@@ -57,8 +57,8 @@ public class KeyType implements Comparable<KeyType> {
 	 *            the other key (to compare with this)
 	 * @return true if equal, false otherwise
 	 */
-	public boolean equals(KeyType k) {
-		return compareTo(k) == 0;
+	public boolean equals(Object k) {
+		return compareTo((KeyType)k) == 0;
 	} // equals
 
 	/***************************************************************************

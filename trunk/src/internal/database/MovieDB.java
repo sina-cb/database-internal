@@ -107,7 +107,7 @@ class MovieDB {
 		select_case1.print();
 		
 		out.println();
-		Table select_case2 = movie.select("length > 100 & studioName == 'Universal' | genre == 'sciFi'");
+		Table select_case2 = movie.select("length < 200 & producerNo == 32355 | year < 1978");
 		select_case2.print();
 		
 		out.println();
@@ -115,7 +115,7 @@ class MovieDB {
 		project_case1.print();
 		
 		out.println();
-		Table project_case2 = cinema.project("title genre studioName");
+		Table project_case2 = movieStar.project("name address");
 		project_case2.print();
 		
 		out.println();
