@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.TreeMap;
 
 /*******************************************************************************
  * This class provides B+Tree maps. B+Trees are used as multi-level index
@@ -45,6 +47,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 
 	/***************************************************************************
 	 * This inner class defines nodes that are stored in the B+tree map.
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	private class Node {
 		boolean isLeaf;
@@ -53,8 +57,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		Object[] ref;
 		
 		Node parent;
-		Node left;
-		Node right;
+		Node left = null;
+		Node right = null;
 
 		@SuppressWarnings("unchecked")
 		Node(boolean _isLeaf) {
@@ -106,14 +110,23 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * Return a set containing all the entries as pairs of keys and values.
 	 * 
 	 * @return the set view of the map
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public Set<Map.Entry<K, V>> entrySet() {
 		Set<Map.Entry<K, V>> enSet = new HashSet<>();
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		Node smallest = root;
+		while (!smallest.isLeaf){
+			smallest = (Node) smallest.ref[0];
+		}
 
+		while (smallest != null){
+			for (int i = 0; i < smallest.nKeys; i++){
+				enSet.add(new SimpleEntry(smallest.key[i], smallest.ref[i]));
+			}
+			smallest = smallest.right;
+		}
 		return enSet;
 	} // entrySet
 
@@ -123,6 +136,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * @param key
 	 *            the key used for look up
 	 * @return the value associated with the key
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	@SuppressWarnings("unchecked")
 	public V get(Object key) {
@@ -137,6 +152,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * @param value
 	 *            the value to insert
 	 * @return null (not the previous value)
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public V put(K key, V value) {
 		insert(key, value, root, null);
@@ -147,52 +164,122 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * Return the first (smallest) key in the B+Tree map.
 	 * 
 	 * @return the first key in the B+Tree map.
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public K firstKey() {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
-		return null;
+		Node smallest = root;
+		while (!smallest.isLeaf){
+			smallest = (Node) smallest.ref[0];
+		}
+		
+		return smallest.key[0];
 	} // firstKey
 
 	/***************************************************************************
 	 * Return the last (largest) key in the B+Tree map.
 	 * 
 	 * @return the last key in the B+Tree map.
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public K lastKey() {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
-		return null;
+		Node biggest = root;
+		while (!biggest.isLeaf){
+			biggest = (Node) biggest.ref[biggest.nKeys];
+		}
+		
+		return biggest.key[biggest.nKeys - 1];
 	} // lastKey
 
 	/***************************************************************************
 	 * Return the portion of the B+Tree map where key < toKey.
 	 * 
 	 * @return the submap with keys in the range [firstKey, toKey)
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public SortedMap<K, V> headMap(K toKey) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
 
-		return null;
+		Node current = root;
+		while (!current.isLeaf){
+			boolean found = false;
+			for (int i = 0; i < current.nKeys; i++){
+				if (toKey.compareTo(current.key[i]) >= 0){
+					current = (Node) current.ref[i + 1];
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				current = (Node) current.ref[0];
+			}
+		}
+
+		SortedMap<K, V> results = new TreeMap<>();
+		for (int i = 0; i < current.nKeys; i++){
+			if (current.key[i].compareTo(toKey) < 0){
+				results.put(current.key[i], (V) current.ref[i]);
+				continue;
+			}
+			break;
+		}
+		
+		current = current.left;
+		
+		while(current != null){
+			for (int i = 0; i < current.nKeys; i++){
+				results.put(current.key[i], (V) current.ref[i]);
+			}
+			
+			current = current.left;
+		}
+		
+		return results;
 	} // headMap
 
 	/***************************************************************************
 	 * Return the portion of the B+Tree map where fromKey <= key.
 	 * 
 	 * @return the submap with keys in the range [fromKey, lastKey]
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public SortedMap<K, V> tailMap(K fromKey) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
+		Node current = root;
+		while (!current.isLeaf){
+			boolean found = false;
+			for (int i = 0; i < current.nKeys; i++){
+				if (fromKey.compareTo(current.key[i]) >= 0){
+					current = (Node) current.ref[i + 1];
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				current = (Node) current.ref[0];
+			}
+		}
 
-		return null;
+		SortedMap<K, V> results = new TreeMap<>();
+		for (int i = 0; i < current.nKeys; i++){
+			if (current.key[i].compareTo(fromKey) >= 0){
+				results.put(current.key[i], (V) current.ref[i]);
+				continue;
+			}
+		}
+		
+		current = current.right;
+		
+		while(current != null){
+			for (int i = 0; i < current.nKeys; i++){
+				results.put(current.key[i], (V) current.ref[i]);
+			}
+			
+			current = current.right;
+		}
+		
+		return results;
 	} // tailMap
 
 	/***************************************************************************
@@ -200,27 +287,36 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * toKey, i.e., fromKey <= key < toKey.
 	 * 
 	 * @return the submap with keys in the range [fromKey, toKey)
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public SortedMap<K, V> subMap(K fromKey, K toKey) {
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
-		return null;
+		SortedMap head = headMap(toKey);
+		SortedMap tail = tailMap(fromKey);
+		head.keySet().retainAll(tail.keySet());
+		return head;
 	} // subMap
 
 	/***************************************************************************
 	 * Return the size (number of keys) in the B+Tree.
 	 * 
 	 * @return the size of the B+Tree
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public int size() {
 		int sum = 0;
 
-		// -----------------\\
-		// TO BE IMPLEMENTED \\
-		// ---------------------\\
-
+		Node smallest = root;
+		while (!smallest.isLeaf){
+			smallest = (Node) smallest.ref[0];
+		}
+		
+		while(smallest != null){
+			sum += smallest.nKeys;
+			smallest = smallest.right;
+		}
+		
 		return sum;
 	} // size
 
@@ -231,6 +327,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the current node to print
 	 * @param level
 	 *            the current level of the B+Tree
+	 *  
+	 *  @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	@SuppressWarnings("unchecked")
 	private void print(Node n, int level) {
@@ -258,6 +356,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the key to find
 	 * @param ney
 	 *            the current node
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	@SuppressWarnings("unchecked")
 	private V find(K key, Node n) {
@@ -292,6 +392,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the current node
 	 * @param p
 	 *            the parent node
+	 *
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	private void insert(K key, V ref, Node n, Node p) {
 		
@@ -316,6 +418,11 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 				K tempKey;
 				Node rightRef;
 				Node leftRef;
+				
+				Node temp = n.right;
+				n.right = newNode;
+				newNode.left = n;
+				newNode.right = temp;
 				
 				tempKey = newNode.key[0];
 				leftRef = n;
@@ -362,11 +469,19 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		
 	} // insert
 
-	
+	/*****************************************************************************
+	 * This method has a recursive manner from the bottom of the B+ Tree upto a node which does not need spliting.
+	 * This is used when a leaf is splited and we need to insert a new value into its parent.
+	 * 
+	 * @param key The new value to be inserted into the parent
+	 * @param leftRef Left reference for that new key
+	 * @param rightRef right reference for that new key
+	 * @param parent the node which we want to add the new key
+	 * 
+	 * @Author: Sina, Arash, Navid, Sambitesh
+	 */
 	private void insertIntoParent(K key, Node leftRef, Node rightRef, Node parent){
-		
 		if (parent.nKeys < ORDER - 1){
-			
 			if (parent.nKeys == 0){
 				parent.ref[0] = leftRef;
 			}
@@ -385,7 +500,6 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 				wedge(key, (V) rightRef, parent, parent.nKeys);
 			}
 		}else{
-			
 			Node newNode = split(key, (V) rightRef, parent);
 			K tempKey;
 			Node tempRightRef;
@@ -424,6 +538,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the current node
 	 * @param i
 	 *            the insertion position within node n
+	 *
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	private void wedge(K key, V ref, Node n, int i) {
 		if (n.isLeaf){
@@ -454,6 +570,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 *            the value/node to insert
 	 * @param n
 	 *            the current node
+	 *
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	private Node split(K key, V ref, Node n) {
 		List<Pair> pairs = new ArrayList<>();
@@ -530,10 +648,13 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 * @param the
 	 *            command-line arguments (args [0] gives number of keys to
 	 *            insert)
+	 *            
+	 * @Author: Sina, Arash, Navid, Sambitesh
 	 */
 	public static void main(String[] args) {
 		BpTree<Integer, Integer> bpt = new BpTree<>(Integer.class, Integer.class);
-		int totKeys = 10;
+		
+		/*int totKeys = 10;
 		if (args.length == 1)
 			totKeys = Integer.valueOf(args[0]);
 		for (int i = 1; i < totKeys; i += 2){
@@ -548,11 +669,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 			
 			out.println("key = " + i + " value = " + bpt.get(i));
 		} // for
-		out.println("-------------------------------------------");
-		out.println("Average number of nodes accessed = " + bpt.count
-				/ (double) totKeys);
-		
-		/*bpt.put(new Integer(50), new Integer(5000));
+*/		
+		bpt.put(new Integer(50), new Integer(5000));
 		bpt.put(new Integer(10), new Integer(1000));
 		bpt.put(new Integer(40), new Integer(4000));
 		bpt.put(new Integer(20), new Integer(2000));
@@ -567,7 +685,45 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		bpt.put(new Integer(140), new Integer(14000));
 		bpt.put(new Integer(150), new Integer(15000));
 		
-		bpt.print(bpt.root, 0);*/
+		bpt.print(bpt.root, 0);
+		
+		out.println("Entry Set:");
+		for (Entry e : bpt.entrySet()){
+			System.out.println(e.getKey());
+		}
+
+		out.println("\n-------------------------------------------\n");
+		
+		System.out.println("First Key: " + bpt.firstKey());
+		System.out.println("Last Key: " + bpt.lastKey());
+
+		out.println("\n-------------------------------------------\n");
+		
+		out.println("Head map for 56");
+		SortedMap resultHead = bpt.headMap(new Integer(56));
+		for (Object e : resultHead.entrySet()){
+			System.out.println(e);
+		}
+		
+		out.println("\n-------------------------------------------\n");
+		
+		out.println("Tail map for 94");
+		SortedMap resultTail = bpt.tailMap(new Integer(94));
+		for (Object e : resultTail.entrySet()){
+			System.out.println(e);
+		}
+		
+		out.println("\n-------------------------------------------\n");
+		
+		out.println("Sub map for 49 to 119");
+		SortedMap resultSub = bpt.subMap(new Integer(49), new Integer(119));
+		for (Object e : resultSub.entrySet()){
+			System.out.println(e);
+		}
+		
+		out.println("\n-------------------------------------------\n");
+		
+		out.println("Size: " + bpt.size());
 	} // main
 
 } // BpTree class
