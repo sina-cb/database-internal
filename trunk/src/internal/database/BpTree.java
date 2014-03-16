@@ -262,15 +262,21 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	@SuppressWarnings("unchecked")
 	private V find(K key, Node n) {
 		count++;
+		boolean found = false;
 		for (int i = 0; i < n.nKeys; i++) {
 			K k_i = n.key[i];
-			if (key.compareTo(k_i) <= 0) {
-				if (n.isLeaf) {
+			
+			if (n.isLeaf){
+				if (key.compareTo(k_i) <= 0){
 					return (key.equals(k_i)) ? (V) n.ref[i] : null;
-				} else {
+				}
+			}else{
+				if (key.compareTo(k_i) < 0){
 					return find(key, (Node) n.ref[i]);
-				} // if
-			} // if
+				}else{
+					return find(key, (Node) n.ref[i + 1]);
+				}
+			}
 		} // for
 		return (n.isLeaf) ? null : find(key, (Node) n.ref[n.nKeys]);
 	} // find
@@ -527,20 +533,26 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 	 */
 	public static void main(String[] args) {
 		BpTree<Integer, Integer> bpt = new BpTree<>(Integer.class, Integer.class);
-		/*int totKeys = 10;
+		int totKeys = 10;
 		if (args.length == 1)
 			totKeys = Integer.valueOf(args[0]);
-		for (int i = 1; i < totKeys; i += 2)
+		for (int i = 1; i < totKeys; i += 2){
 			bpt.put(i, i * i);
+		}
+			
 		bpt.print(bpt.root, 0);
 		for (int i = 0; i < totKeys; i++) {
+			if (i == 5){
+				int  a = 1;
+			}
+			
 			out.println("key = " + i + " value = " + bpt.get(i));
 		} // for
 		out.println("-------------------------------------------");
 		out.println("Average number of nodes accessed = " + bpt.count
-				/ (double) totKeys);*/
+				/ (double) totKeys);
 		
-		bpt.put(new Integer(50), new Integer(5000));
+		/*bpt.put(new Integer(50), new Integer(5000));
 		bpt.put(new Integer(10), new Integer(1000));
 		bpt.put(new Integer(40), new Integer(4000));
 		bpt.put(new Integer(20), new Integer(2000));
@@ -554,6 +566,8 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		bpt.put(new Integer(130), new Integer(13000));
 		bpt.put(new Integer(140), new Integer(14000));
 		bpt.put(new Integer(150), new Integer(15000));
+		
+		bpt.print(bpt.root, 0);*/
 	} // main
 
 } // BpTree class
