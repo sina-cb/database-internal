@@ -55,7 +55,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Collection of tuples (data storage).
 	 */
-	private final List<Comparable[]> tuples;
+	public final List<Comparable[]> tuples;
 
 	/**
 	 * Primary key.
@@ -85,12 +85,12 @@ public class Table implements Serializable, Cloneable {
 		attribute = _attribute;
 		domain = _domain;
 		key = _key;
-		tuples = new ArrayList<>(); // also try FileList, see below
-		//tuples = new FileList(this, tupleSize());
+		//tuples = new ArrayList<>(); // also try FileList, see below
+		tuples = new FileList(this, tupleSize());
 		
 		//index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
-		//index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
-		index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
+		index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
+		//index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
 	/***************************************************************************
@@ -536,12 +536,21 @@ public class Table implements Serializable, Cloneable {
 		for (int i = 0; i < attribute.length; i++)
 			out.print("---------------");
 		out.println("-|");
-		for (Comparable[] tup : tuples) {
+//		for (Comparable[] tup : tuples) {
+//			out.print("| ");
+//			for (Comparable attr : tup)
+//				out.printf("%15s", attr);
+//			out.println(" |");
+//		} // for
+		
+		for (Integer i : index.values()) {
 			out.print("| ");
+			Comparable[] tup = tuples.get(i);
 			for (Comparable attr : tup)
 				out.printf("%15s", attr);
 			out.println(" |");
 		} // for
+		
 		out.print("|-");
 		for (int i = 0; i < attribute.length; i++)
 			out.print("---------------");

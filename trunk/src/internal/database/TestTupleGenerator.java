@@ -17,6 +17,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import com.google.common.primitives.Doubles;
+import com.sun.xml.internal.ws.api.pipe.Stubs;
 
 /*******************************************************************************
  * This class tests the TupleGenerator on the Student Registration Database
@@ -61,7 +62,7 @@ public class TestTupleGenerator {
 		String[] tables = { "Student", "Professor", "Course", "Transcript",
 				"Teaching" };
 
-		int tups[] = new int[] { 1000000, 1000, 2000, 50000, 5000 };
+		int tups[] = new int[] { 10000, 1000, 2000, 50000, 5000 };
 
 		Comparable[][][] resultTest = test.generate(tups);
 
@@ -116,16 +117,15 @@ public class TestTupleGenerator {
 		List<Double> resutls = new ArrayList<>();
 		
 		for (int i = 0; i < 100; i++){
+			Random rand = new Random();
+			int id = (Integer) student.tuples.get(rand.nextInt(student.tuples.size()))[0];
+			
 			long beforeTime = System.nanoTime();
 			
-			Random rand = new Random();
-			int id = rand.nextInt(1000000);
-			
-			student.select("id == " + id);
+			student.select("id > " + id);
 			
 			long afterTime = System.nanoTime();
 			
-//			System.out.println(id + " ||| " + (afterTime - beforeTime) / 10E6);
 			resutls.add((afterTime - beforeTime) / 10E6);
 		}
 		
@@ -139,16 +139,6 @@ public class TestTupleGenerator {
 		System.out.println("Std Err: " + stdErr);
 		System.out.println("Average: " + average);
 		
-		/*for (int i = 0; i < resultTest.length; i++) {
-			out.println(tables[i]);
-			for (int j = 0; j < resultTest[i].length; j++) {
-				for (int k = 0; k < resultTest[i][j].length; k++) {
-					out.print(resultTest[i][j][k] + ",");
-				} // for
-				out.println();
-			} // for
-			out.println();
-		} // for
-*/	} // main
+	} // main
 
 } // TestTupleGenerator
