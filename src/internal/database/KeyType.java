@@ -20,7 +20,7 @@ public class KeyType implements Comparable<KeyType> {
 	/**
 	 * Array holding the attribute values for a particular key
 	 */
-	private final Comparable[] key;
+	public final Comparable[] key;
 
 	/***************************************************************************
 	 * Construct an instance of KeyType from a Comparable array.

@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -88,8 +90,8 @@ public class Table implements Serializable, Cloneable {
 		//tuples = new ArrayList<>(); // also try FileList, see below
 		tuples = new FileList(this, tupleSize());
 		
-		//index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
-		index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
+		index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
+		//index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
 		//index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
@@ -192,14 +194,83 @@ public class Table implements Serializable, Cloneable {
 	public Table select(String condition) {
 		if (DEBUG)
 			out.println("RA> " + name + ".select (" + condition + ")");
-
-		String[] postfix = infix2postfix(condition);
 		Table result = new Table(name + count++, attribute, domain, key);
+		
+		ArrayList<String> infix = new ArrayList<String>(Arrays.asList(condition.split(" ")));
 
-		for (Comparable[] tup : tuples) {
-			if (evalTup(postfix, tup))
-				result.insert(tup);
-		} // for
+		if (key.length == 1 && infix.contains(key[0]) && infix.size() == 3){
+			infix.remove(key[0]);
+			if (infix.contains("==")){
+				// Extendible Hash
+				infix.remove("==");
+				Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+				Integer pos = index.get(new KeyType(keyVal));
+				if (pos != null)
+					result.insert(tuples.get(pos));
+			}
+			else if (infix.contains("!=")){
+				infix.remove("!=");
+				Table resultReverse = new Table(name + count++, attribute, domain, key);
+				Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+				Integer pos = index.get(new KeyType(keyVal));
+				if (pos != null)
+					resultReverse.insert(tuples.get(pos));
+				result = this.minus(resultReverse);
+			}
+			else{
+				if ((infix.contains(">") || infix.contains(">=")) && (index instanceof BpTree || index instanceof TreeMap)){
+					infix.remove(0);
+					Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+					SortedMap tail = null;
+					if (index instanceof BpTree)
+						tail = ((BpTree)index).tailMap(new KeyType(keyVal));
+					else
+						tail = ((TreeMap)index).tailMap(new KeyType(keyVal));
+					for (Object t: tail.values()){
+						result.insert(tuples.get((Integer) t));
+					}
+				}else if ((infix.contains("<") || infix.contains("<=")) && (index instanceof BpTree || index instanceof TreeMap)){
+					infix.remove(0);
+					Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+					SortedMap head = null;
+					if (index instanceof BpTree)
+						head = ((BpTree)index).headMap(new KeyType(keyVal));
+					else
+						head = ((TreeMap)index).headMap(new KeyType(keyVal));
+					for (Object t: head.values()){
+						result.insert(tuples.get((Integer) t));
+					}
+				}else{
+					// We have ExtHash
+					if (infix.contains("<") || infix.contains("<=")){
+						infix.remove(0);
+						for (Object t : ((ExtHash)index).entrySet()){
+							Map.Entry entry = (Entry) t;
+							Integer leftSide = (Integer) ((KeyType)entry.getKey()).key[0];
+							if (leftSide <= Integer.parseInt(infix.get(0))){
+								result.insert(tuples.get(((Integer)entry.getValue())));
+							}
+						}
+					}else{
+						infix.remove(0);
+						for (Object t : ((ExtHash)index).entrySet()){
+							Map.Entry entry = (Entry) t;
+							Integer leftSide = (Integer) ((KeyType)entry.getKey()).key[0];
+							if (leftSide >= Integer.parseInt(infix.get(0))){
+								result.insert(tuples.get(((Integer)entry.getValue())));
+							}
+						}
+					}
+				}
+			}
+		}
+		else{
+			String[] postfix = infix2postfix(condition);
+			for (Comparable[] tup : tuples) {
+				if (evalTup(postfix, tup))
+					result.insert(tup);
+			} // for
+		}
 
 		return result;
 	} // select
