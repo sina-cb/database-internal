@@ -62,7 +62,7 @@ public class TestTupleGenerator {
 		String[] tables = { "Student", "Professor", "Course", "Transcript",
 				"Teaching" };
 
-		int tups[] = new int[] { 10, 1000, 2000, 50000, 5000 };
+		int tups[] = new int[] { 10000, 1, 1, 1, 1 };
 
 		Comparable[][][] resultTest = test.generate(tups);
 
@@ -80,9 +80,6 @@ public class TestTupleGenerator {
 		
 		Table teaching = new Table("Teaching", "crsCode semester profId",
 				"String String Integer", "crsCode semester");
-		
-		Comparable[] tup1 = {656595, "Name1", "Add1", "Stat"};
-		student.insert(tup1);
 		
 		for (int i = 0; i < resultTest.length; i++){
 			switch (i) {
