@@ -1,0 +1,48 @@
+
+		tup1[0] = 946237;
+		student.insert(tup1);
+		
+		tup1[0] = 657655;
+		student.insert(tup1);
+		
+		tup1[0] = 659174;
+		student.insert(tup1);
+
+		tup1[0] = 992679;
+		student.insert(tup1);
+		
+		tup1[0] = 56379;
+		student.insert(tup1);
+		
+		tup1[0] = 783712;
+		student.insert(tup1);
+		
+		tup1[0] = 522107;
+		student.insert(tup1);
+		
+		tup1[0] = 57840;
+		student.insert(tup1);
+		
+		tup1[0] = 316756;
+		student.insert(tup1);
+		
+		tup1[0] = 382906;
+		student.insert(tup1);
+		
+		tup1[0] = 281834;
+		student.insert(tup1);
+		
+		tup1[0] = 81264;
+		student.insert(tup1);
+		
+		tup1[0] = 683856;
+		student.insert(tup1);
+		
+		tup1[0] = 694423;
+		student.insert(tup1);
+		
+		tup1[0] = 59980;
+		student.insert(tup1);
+		
+		tup1[0] = 611142;
+		student.insert(tup1);
