@@ -14,6 +14,8 @@ import static java.lang.System.out;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.swing.JOptionPane;
+
 import sun.util.logging.resources.logging;
 
 import com.sun.corba.se.impl.interceptors.SlotTableStack;
@@ -198,7 +200,7 @@ public class ExtHash<K, V> extends AbstractMap<K, V> implements Serializable,
 				
 				for (int j = 0; j < mod / 2; j++){
 					if (j != i){
-						dir.add(hTable.get(j));
+						dir.add(dir.get(j));
 					}else{
 						dir.add(newBucket);
 					}
