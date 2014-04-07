@@ -17,10 +17,16 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.TreeMap;
+
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+
+import com.google.common.primitives.Doubles;
 
 /*******************************************************************************
  * This class provides B+Tree maps. B+Trees are used as multi-level index
@@ -722,7 +728,6 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 		}
 		
 		out.println("\n-------------------------------------------\n");
-		
 		out.println("Size: " + bpt.size());
 	} // main
 
