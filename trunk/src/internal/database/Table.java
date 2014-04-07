@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.TreeMap;
 
 /*******************************************************************************
  * This class implements relational database tables (including attribute names,
@@ -28,7 +29,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	/**
 	 * Counter for naming temporary tables.
@@ -84,12 +85,12 @@ public class Table implements Serializable, Cloneable {
 		attribute = _attribute;
 		domain = _domain;
 		key = _key;
-		// tuples = new ArrayList<>(); // also try FileList, see below
-		tuples = new FileList(this, tupleSize());
+		tuples = new ArrayList<>(); // also try FileList, see below
+		//tuples = new FileList(this, tupleSize());
 		
-		index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
+		//index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
 		//index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
-		//index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
+		index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
 	/***************************************************************************
@@ -106,7 +107,8 @@ public class Table implements Serializable, Cloneable {
 		this(name, attributes.split(" "), findClass(domains.split(" ")), _key
 				.split(" "));
 
-		out.println("DDL> create table " + name + " (" + attributes + ")");
+		if (DEBUG)
+			out.println("DDL> create table " + name + " (" + attributes + ")");
 	} // Table
 
 	/***************************************************************************
@@ -133,7 +135,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table project(String attributeList) {
-		out.println("RA> " + name + ".project (" + attributeList + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".project (" + attributeList + ")");
 
 		String[] pAttribute = attributeList.split(" ");
 		int[] colPos = match(pAttribute);
@@ -187,7 +190,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table select(String condition) {
-		out.println("RA> " + name + ".select (" + condition + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".select (" + condition + ")");
 
 		String[] postfix = infix2postfix(condition);
 		Table result = new Table(name + count++, attribute, domain, key);
@@ -212,7 +216,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table union(Table table2) {
-		out.println("RA> " + name + ".union (" + table2.name + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".union (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
@@ -261,7 +266,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table minus(Table table2) {
-		out.println("RA> " + name + ".minus (" + table2.name + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".minus (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
@@ -475,8 +481,8 @@ public class Table implements Serializable, Cloneable {
 	 * @return whether insertion was successful
 	 */
 	public boolean insert(Comparable[] tup) {
-		out.println("DML> insert into " + name + " values ( "
-				+ Arrays.toString(tup) + " )");
+		if (DEBUG)
+			out.println("DML> insert into " + name + " values ( " + Arrays.toString(tup) + " )");
 
 		if (typeCheck(tup, domain)) {
 			tuples.add(tup);
