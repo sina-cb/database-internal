@@ -18,6 +18,7 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import com.google.common.primitives.Doubles;
 import com.sun.xml.internal.ws.api.pipe.Stubs;
+import internal.*;
 
 /*******************************************************************************
  * This class tests the TupleGenerator on the Student Registration Database
@@ -62,7 +63,7 @@ public class TestTupleGenerator {
 		String[] tables = { "Student", "Professor", "Course", "Transcript",
 				"Teaching" };
 
-		int tups[] = new int[] { 10000, 1, 1, 1, 1 };
+		int tups[] = new int[] { 1000000, 1, 1, 1, 1 };
 
 		Comparable[][][] resultTest = test.generate(tups);
 
