@@ -31,7 +31,7 @@ public class ExtHash<K, V> extends AbstractMap<K, V> implements Serializable,
 	/**
 	 * The number of slots (for key-value pairs) per bucket.
 	 */
-	private static final int SLOTS = 4;
+	private static final int SLOTS = 50;
 
 	/**
 	 * The class for type K.

@@ -63,7 +63,7 @@ public class TestTupleGenerator {
 		String[] tables = { "Student", "Professor", "Course", "Transcript",
 				"Teaching" };
 
-		int tups[] = new int[] { 1000000, 1, 1, 1, 1 };
+		int tups[] = new int[] { 5000, 1, 1, 1, 1 };
 
 		Comparable[][][] resultTest = test.generate(tups);
 
