@@ -14,7 +14,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 
 /*******************************************************************************
  * This class implements relational database tables (including attribute names,
@@ -28,7 +31,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	/**
 	 * Counter for naming temporary tables.
@@ -54,7 +57,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Collection of tuples (data storage).
 	 */
-	private final List<Comparable[]> tuples;
+	public final List<Comparable[]> tuples;
 
 	/**
 	 * Primary key.
@@ -64,9 +67,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Index into tuples (maps key to tuple).
 	 */
-	//private final Map<KeyType, Integer> index;
-	//private final Map <KeyType, Comparable []> index;
-	private final BpTree< KeyType, Comparable[] > index;
+	private final Map<KeyType, Integer> index;
 
 	/***************************************************************************
 	 * Construct an empty table from the meta-data specifications.
@@ -86,11 +87,11 @@ public class Table implements Serializable, Cloneable {
 		attribute = _attribute;
 		domain = _domain;
 		key = _key;
-		// tuples = new ArrayList<>(); // also try FileList, see below
+		//tuples = new ArrayList<>(); // also try FileList, see below
 		tuples = new FileList(this, tupleSize());
 		
-		index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
-		//index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
+		//index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
+		index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
 		//index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 
@@ -108,7 +109,8 @@ public class Table implements Serializable, Cloneable {
 		this(name, attributes.split(" "), findClass(domains.split(" ")), _key
 				.split(" "));
 
-		out.println("DDL> create table " + name + " (" + attributes + ")");
+		if (DEBUG)
+			out.println("DDL> create table " + name + " (" + attributes + ")");
 	} // Table
 
 	/***************************************************************************
@@ -135,7 +137,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table project(String attributeList) {
-		out.println("RA> " + name + ".project (" + attributeList + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".project (" + attributeList + ")");
 
 		String[] pAttribute = attributeList.split(" ");
 		int[] colPos = match(pAttribute);
@@ -189,15 +192,85 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table select(String condition) {
-		out.println("RA> " + name + ".select (" + condition + ")");
-
-		String[] postfix = infix2postfix(condition);
+		if (DEBUG)
+			out.println("RA> " + name + ".select (" + condition + ")");
 		Table result = new Table(name + count++, attribute, domain, key);
+		
+		ArrayList<String> infix = new ArrayList<String>(Arrays.asList(condition.split(" ")));
 
-		for (Comparable[] tup : tuples) {
-			if (evalTup(postfix, tup))
-				result.insert(tup);
-		} // for
+		if (key.length == 1 && infix.contains(key[0]) && infix.size() == 3){
+			infix.remove(key[0]);
+			if (infix.contains("==")){
+				// Extendible Hash
+				infix.remove("==");
+				Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+				Integer pos = index.get(new KeyType(keyVal));
+				if (pos != null)
+					result.insert(tuples.get(pos));
+			}
+			else if (infix.contains("!=")){
+				infix.remove("!=");
+				Table resultReverse = new Table(name + count++, attribute, domain, key);
+				Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+				Integer pos = index.get(new KeyType(keyVal));
+				if (pos != null)
+					resultReverse.insert(tuples.get(pos));
+				result = this.minus(resultReverse);
+			}
+			else{
+				if ((infix.contains(">") || infix.contains(">=")) && (index instanceof BpTree || index instanceof TreeMap)){
+					infix.remove(0);
+					Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+					SortedMap tail = null;
+					if (index instanceof BpTree)
+						tail = ((BpTree)index).tailMap(new KeyType(keyVal));
+					else
+						tail = ((TreeMap)index).tailMap(new KeyType(keyVal));
+					for (Object t: tail.values()){
+						result.insert(tuples.get((Integer) t));
+					}
+				}else if ((infix.contains("<") || infix.contains("<=")) && (index instanceof BpTree || index instanceof TreeMap)){
+					infix.remove(0);
+					Comparable[] keyVal = {Integer.parseInt(infix.get(0))};
+					SortedMap head = null;
+					if (index instanceof BpTree)
+						head = ((BpTree)index).headMap(new KeyType(keyVal));
+					else
+						head = ((TreeMap)index).headMap(new KeyType(keyVal));
+					for (Object t: head.values()){
+						result.insert(tuples.get((Integer) t));
+					}
+				}else{
+					// We have ExtHash
+					if (infix.contains("<") || infix.contains("<=")){
+						infix.remove(0);
+						for (Object t : ((ExtHash)index).entrySet()){
+							Map.Entry entry = (Entry) t;
+							Integer leftSide = (Integer) ((KeyType)entry.getKey()).key[0];
+							if (leftSide <= Integer.parseInt(infix.get(0))){
+								result.insert(tuples.get(((Integer)entry.getValue())));
+							}
+						}
+					}else{
+						infix.remove(0);
+						for (Object t : ((ExtHash)index).entrySet()){
+							Map.Entry entry = (Entry) t;
+							Integer leftSide = (Integer) ((KeyType)entry.getKey()).key[0];
+							if (leftSide >= Integer.parseInt(infix.get(0))){
+								result.insert(tuples.get(((Integer)entry.getValue())));
+							}
+						}
+					}
+				}
+			}
+		}
+		else{
+			String[] postfix = infix2postfix(condition);
+			for (Comparable[] tup : tuples) {
+				if (evalTup(postfix, tup))
+					result.insert(tup);
+			} // for
+		}
 
 		return result;
 	} // select
@@ -214,7 +287,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table union(Table table2) {
-		out.println("RA> " + name + ".union (" + table2.name + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".union (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
@@ -263,7 +337,8 @@ public class Table implements Serializable, Cloneable {
 	 * @author Sina, Arash, Navid, Sambitesh
 	 */
 	public Table minus(Table table2) {
-		out.println("RA> " + name + ".minus (" + table2.name + ")");
+		if (DEBUG)
+			out.println("RA> " + name + ".minus (" + table2.name + ")");
 
 		Table result = new Table(name + count++, attribute, domain, key);
 
@@ -593,7 +668,7 @@ public class Table implements Serializable, Cloneable {
             
             try{
 
-            	reference = (Comparable[])table2.index.get(new KeyType(fKey));
+            	reference = (Comparable[])table2.tuples.get(index.get(new KeyType(fKey)));
             }catch(java.lang.ClassCastException e)
             {
             	out.println("Sorry, join conditions invalid: attribute 2 is not primary key ");
@@ -649,8 +724,8 @@ public class Table implements Serializable, Cloneable {
 	 * @return whether insertion was successful
 	 */
 	public boolean insert(Comparable[] tup) {
-		out.println("DML> insert into " + name + " values ( "
-				+ Arrays.toString(tup) + " )");
+		if (DEBUG)
+			out.println("DML> insert into " + name + " values ( " + Arrays.toString(tup) + " )");
 
 		if (typeCheck(tup, domain)) {
 			tuples.add(tup);
@@ -658,8 +733,7 @@ public class Table implements Serializable, Cloneable {
 			int[] cols = match(key);
 			for (int j = 0; j < keyVal.length; j++)
 				keyVal[j] = tup[cols[j]];
-			//index.put(new KeyType(keyVal), this.getTupleCount() - 1);
-			index.put (new KeyType (keyVal), tup);// For TreeMap and BpTree I am using comparable
+			index.put(new KeyType(keyVal), this.getTupleCount() - 1);
 			return true;
 		} else {
 			return false;
@@ -705,12 +779,21 @@ public class Table implements Serializable, Cloneable {
 		for (int i = 0; i < attribute.length; i++)
 			out.print("---------------");
 		out.println("-|");
-		for (Comparable[] tup : tuples) {
+//		for (Comparable[] tup : tuples) {
+//			out.print("| ");
+//			for (Comparable attr : tup)
+//				out.printf("%15s", attr);
+//			out.println(" |");
+//		} // for
+		
+		for (Integer i : index.values()) {
 			out.print("| ");
+			Comparable[] tup = tuples.get(i);
 			for (Comparable attr : tup)
 				out.printf("%15s", attr);
 			out.println(" |");
 		} // for
+		
 		out.print("|-");
 		for (int i = 0; i < attribute.length; i++)
 			out.print("---------------");
