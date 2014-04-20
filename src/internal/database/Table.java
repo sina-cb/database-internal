@@ -90,8 +90,8 @@ public class Table implements Serializable, Cloneable {
 		//tuples = new ArrayList<>(); // also try FileList, see below
 		tuples = new FileList(this, tupleSize());
 		
-		//index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
-		index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
+		index = new BpTree(KeyType.class, Integer.class);  // B+ Tree Indexing
+		//index = new ExtHash<>(KeyType.class, Integer.class, 2);  // Extendible Hash Table Indexing
 		//index = new TreeMap<>(); // also try BPTreeMap, LinHash or ExtHash
 	} // Table
 

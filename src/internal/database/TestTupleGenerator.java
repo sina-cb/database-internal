@@ -63,7 +63,7 @@ public class TestTupleGenerator {
 		String[] tables = { "Student", "Professor", "Course", "Transcript",
 				"Teaching" };
 
-		int tups[] = new int[] { 5000, 1, 1, 1, 1 };
+		int tups[] = new int[] { 100, 100, 100, 100, 100 };
 
 		Comparable[][][] resultTest = test.generate(tups);
 
@@ -99,14 +99,14 @@ public class TestTupleGenerator {
 					course.insert(resultTest[i][j]);
 				}
 				break;
-			case 3: //Trans.
-				for (int j = 0; j < resultTest[i].length; j++){
-					trans.insert(resultTest[i][j]);
-				}
-				break;
-			case 4: //Teaching
+			case 3: //Teaching.
 				for (int j = 0; j < resultTest[i].length; j++){
 					teaching.insert(resultTest[i][j]);
+				}
+				break;
+			case 4: //Trans.
+				for (int j = 0; j < resultTest[i].length; j++){
+					trans.insert(resultTest[i][j]);
 				}
 				break;
 
