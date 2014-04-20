@@ -113,7 +113,7 @@ public class MyTupleGenerator {
 		
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
-		int tups[] = new int[] { 150 /*ProdCat*/, 100 /*Product*/, 24 /*StoreCat*/, 100 /*Store*/, 120 /*Customer*/, 100 /*Pricing*/, 13 /*ShipmentCat*/, 100 /*Shipment*/, 
+		int tups[] = new int[] { 150 /*ProdCat*/, 100 /*Product*/, 24 /*StoreCat*/, 100 /*Store*/, 120 /*Customer*/, 100 /*Pricing*/, 12 /*ShipmentCat*/, 100 /*Shipment*/, 
 				100 /*Promotion*/, 100 /*Purchase*/, 50 /*B_Social*/, 100 /*B_POST*/, 200 /*B_COMMENT*/, 50 /*F_SOCIAL*/, 100 /*F_POST*/, 100 /*F_COMMENT*/, 50 /*G_SOCIAL*/, 
 				100 /*G_POST*/, 100 /*G_COMMENT*/, 50 /*T_SOCIAL*/, 300 /*TWEET*/, 300 /*G_TREND*/};
 		
@@ -346,7 +346,7 @@ public class MyTupleGenerator {
 
 	private static String generateWord() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Word.txt")));
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Word.txt")));
 		int line = rand.nextInt(999);
 		for (int i = 0; i < line; i++) {
 			br.readLine();
@@ -356,7 +356,7 @@ public class MyTupleGenerator {
 
 	private static String generateCountry() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Country.txt")));
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Country.txt")));
 		int line = rand.nextInt(999);
 		for (int i = 0; i < line; i++) {
 			br.readLine();
@@ -366,7 +366,7 @@ public class MyTupleGenerator {
 
 	private static String generateCity() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("City.txt")));
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\City.txt")));
 		int line = rand.nextInt(999);
 		for (int i = 0; i < line; i++) {
 			br.readLine();
@@ -376,7 +376,7 @@ public class MyTupleGenerator {
 
 	private static String generateAddress() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Address.txt")));
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Address.txt")));
 		int line = rand.nextInt(4999);
 		for (int i = 0; i < line; i++) {
 			br.readLine();
@@ -391,7 +391,7 @@ public class MyTupleGenerator {
 		int line = -1;
 		switch (gender) {
 		case "M":
-			br = new BufferedReader(new FileReader(new File("male_names.txt")));
+			br = new BufferedReader(new FileReader(new File("Data Samples\\male_names.txt")));
 			line = rand.nextInt(499);
 			for (int i = 0; i < line; i++) {
 				br.readLine();
@@ -399,7 +399,7 @@ public class MyTupleGenerator {
 			name = br.readLine();
 			break;
 		case "F":
-			br = new BufferedReader(new FileReader(new File("female_names.txt")));
+			br = new BufferedReader(new FileReader(new File("Data Samples\\female_names.txt")));
 			line = rand.nextInt(499);
 			for (int i = 0; i < line; i++) {
 				br.readLine();
