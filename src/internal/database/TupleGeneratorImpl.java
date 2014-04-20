@@ -7,6 +7,7 @@ package internal.database;
  */
 
 import static java.lang.System.out;
+
 import java.util.*;
 
 /*******************************************************************************
@@ -126,27 +127,36 @@ public class TupleGeneratorImpl implements TupleGenerator {
 
 							switch (domain[k]) {
 							case "Integer":
-								for (iVal = rand.nextInt(1000000); pKeyValues
+								for (iVal = rand.nextInt(max); pKeyValues
 										.contains(iVal); iVal = rand
-										.nextInt(1000000))
+										.nextInt(max))
 									;
 								subResult[j][k] = iVal;
 								pKeyValues.add(iVal);
 								break;
 							case "String":
-								for (sVal = attribute[k]
-										+ rand.nextInt(1000000); pKeyValues
-										.contains(sVal); sVal = attribute[k]
-										+ rand.nextInt(1000000))
-									;
-								subResult[j][k] = sVal;
-								pKeyValues.add(sVal);
+								switch (attribute[k]) {
+								case "ipAddress":
+									for (sVal = generateIP(); pKeyValues.contains(sVal); sVal = generateIP());
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								default:
+									for (sVal = attribute[k]
+											+ rand.nextInt(max); pKeyValues
+											.contains(sVal); sVal = attribute[k]
+											+ rand.nextInt(max))
+										;
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								}
 								break;
 							case "Double":
-								for (dVal = rand.nextInt(1000000)
+								for (dVal = rand.nextInt(max)
 										* rand.nextDouble(); pKeyValues
 										.contains(dVal); dVal = rand
-										.nextInt(1000000) * rand.nextDouble())
+										.nextInt(max) * rand.nextDouble())
 									;
 								subResult[j][k] = dVal;
 								pKeyValues.add(dVal);
@@ -160,11 +170,11 @@ public class TupleGeneratorImpl implements TupleGenerator {
 
 							switch (domain[k]) {
 							case "Integer":
-								subResult[j][k] = rand.nextInt(1000000);
+								subResult[j][k] = rand.nextInt(max);
 								break;
 							case "String":
 								subResult[j][k] = attribute[k]
-										+ rand.nextInt(1000000);
+										+ rand.nextInt(max);
 								break;
 							case "Double":
 								subResult[j][k] = rand.nextInt(100000)
@@ -243,27 +253,36 @@ public class TupleGeneratorImpl implements TupleGenerator {
 
 								switch (domain[k]) {
 								case "Integer":
-									for (iVal = rand.nextInt(1000000); pKeyValues
+									for (iVal = rand.nextInt(max); pKeyValues
 											.contains(iVal); iVal = rand
-											.nextInt(1000000))
+											.nextInt(max))
 										;
 									subResult[j][k] = iVal;
 									pKeyValues.add(iVal);
 									break;
 								case "String":
-									for (sVal = attribute[k]
-											+ rand.nextInt(1000000); pKeyValues
-											.contains(sVal); sVal = attribute[k]
-											+ rand.nextInt(1000000))
-										;
-									subResult[j][k] = sVal;
-									pKeyValues.add(sVal);
+									switch (attribute[k]) {
+									case "ipAddress":
+										for (sVal = generateIP(); pKeyValues.contains(sVal); sVal = generateIP());
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									default:
+										for (sVal = attribute[k]
+												+ rand.nextInt(max); pKeyValues
+												.contains(sVal); sVal = attribute[k]
+												+ rand.nextInt(max))
+											;
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									}
 									break;
 								case "Double":
-									for (dVal = rand.nextInt(1000000)
+									for (dVal = rand.nextInt(max)
 											* rand.nextDouble(); pKeyValues
 											.contains(dVal); dVal = rand
-											.nextInt(1000000)
+											.nextInt(max)
 											* rand.nextDouble())
 										;
 									subResult[j][k] = dVal;
@@ -279,14 +298,14 @@ public class TupleGeneratorImpl implements TupleGenerator {
 
 								switch (domain[k]) {
 								case "Integer":
-									subResult[j][k] = rand.nextInt(1000000);
+									subResult[j][k] = rand.nextInt(max);
 									break;
 								case "String":
 									subResult[j][k] = attribute[k]
-											+ rand.nextInt(1000000);
+											+ rand.nextInt(max);
 									break;
 								case "Double":
-									subResult[j][k] = rand.nextInt(1000000)
+									subResult[j][k] = rand.nextInt(max)
 											* rand.nextDouble();
 									break;
 								default:
@@ -317,4 +336,16 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		return tempResult;
 	} // generate
 
+	private static String generateIP() {
+		Random rand = new Random();
+		int num1 = rand.nextInt(256);
+		int num2 = rand.nextInt(256);
+		int num3 = rand.nextInt(256);
+		int num4 = rand.nextInt(256);
+		
+		return (num1 + "." + num2 + "." + num3 + "." + num4);
+	}
+	
+	int max = Integer.MAX_VALUE;
+	
 } // TestGeneratorImpl class
