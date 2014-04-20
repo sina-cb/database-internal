@@ -31,7 +31,7 @@ public class Table implements Serializable, Cloneable {
 	/**
 	 * Debug flag, turn off once implemented
 	 */
-	private static final boolean DEBUG = false;
+	public static final boolean DEBUG = false;
 
 	/**
 	 * Counter for naming temporary tables.
@@ -542,6 +542,122 @@ public class Table implements Serializable, Cloneable {
 		// all done
 		return result;
 	} // join
+	
+	public Table index_join (String condition, Table table2){
+
+
+		Table emptyTable = new Table(name + count++, new String[0],
+				new Class[0], key);
+		// first check the condition input to make sure it is valid
+		String[] splitCondition = condition.split(" ");
+		if (splitCondition.length != 3) {
+			out.println("Invalid join : format must be \"attribute1name == attribute2Name\"");
+			return (emptyTable);
+		}
+		if (!(splitCondition[1].equalsIgnoreCase("=="))) {
+			out.println("Invalid join : comparator must be \"==\"");
+			return (emptyTable);
+		}
+		// make sure the first attribute in the condition exists in the first
+		// table
+		int firstValuePos = this.columnPos(splitCondition[0]);
+		if (firstValuePos == -1) {
+			out.println("Invalid join : first attribute does not exist in calling table");
+			return (emptyTable);
+		}
+		// make sure the second attribute in the condition exists in the second
+		// table
+		int secondValuePos = table2.columnPos(splitCondition[2]);
+		if (secondValuePos == -1) {
+			// The second attribute might be name s.attributename, so check for
+			// it too
+			if (splitCondition[2].startsWith("s.")) {
+				splitCondition[2] = splitCondition[2].substring(2);
+				secondValuePos = table2.columnPos(splitCondition[2]);
+			}
+			// If still not found,then invalid join
+			if (secondValuePos == -1) {
+				out.println("Invalid join : second attribute does not exist in parameter table");
+				return (emptyTable);
+			}
+		}
+		// Validity check successful
+
+		// First figure out how big the table will be (which should = table1 +
+		// table2)
+		int firstTable = this.attribute.length;
+		int secondTableSize = table2.attribute.length;
+		int resultTableSize = firstTable + secondTableSize;
+		// create appropriate variables to hold attributes and domains for the
+		// new table
+		String[] resultAttributes = new String[resultTableSize];
+		Class[] resultDomains = new Class[resultTableSize];
+		// initialize these arrays by adding every attribute of table1
+		// and every attribute of table2 EXCEPT for the one named in the
+		// condition
+		int colCounter = 0;
+		// handle the first table
+		while (colCounter < firstTable) {
+			resultAttributes[colCounter] = this.attribute[colCounter];
+			resultDomains[colCounter] = this.domain[colCounter];
+			colCounter++;
+		}
+		// handle the second table
+		int table2Counter = (colCounter - firstTable);
+		while (colCounter < resultTableSize) {
+				// check against the first table's attributes to look for
+				// prefixing requirements
+				String s_ = "s_";
+				String curAttr = table2.attribute[table2Counter];
+				for (int i = 0; i < firstTable; i++) {
+					String current1Attr = this.attribute[i];
+					// if the attribute name already exists in table 1, add a
+					// prefix to the table 2 attribute name
+					if (current1Attr.equalsIgnoreCase(curAttr)) {
+						curAttr = s_ + curAttr;
+						break;
+					}
+				}
+				// carry on
+				resultAttributes[colCounter] = curAttr;
+				resultDomains[colCounter] = table2.domain[table2Counter];
+				// if it is the exception, leave the table2 counter, but back up
+				// on the colCounter, then carry on without adding anything
+			colCounter++;
+			table2Counter++;
+		}
+
+		// create the new table
+		Table result = new Table(name + count++, resultAttributes,
+				resultDomains, key);
+		
+		if (this.tuples.size() == 0 || table2.tuples.size() == 0) {
+			out.println("There are no tuples in one of the tables, therefore join results in empty table");
+			return emptyTable;
+		}
+		
+		for (Object t : this.index.entrySet()) {
+		
+			Map.Entry entry = (Map.Entry) t;
+			Integer res = table2.index.get(entry.getKey());
+			if ( res != null){
+				// make a new tuple
+				Comparable[] newTup = new Comparable[resultTableSize];
+				Comparable[] tup1 = this.tuples.get((Integer)entry.getValue());
+				Comparable[] tup2 = table2.tuples.get(res);
+				
+				for (int i = 0; i < tup1.length + tup2.length; i++){
+					if (i < tup1.length)
+						newTup[i] = tup1[i];
+					else
+						newTup[i] = tup2[i - tup1.length];
+				}
+				result.insert(newTup);
+			}
+		}
+		
+		return result;
+	}
 
 	/***************************************************************************
 	 * Insert a tuple to the table. #usage movie.insert ("'Star_Wars'", 1977,
