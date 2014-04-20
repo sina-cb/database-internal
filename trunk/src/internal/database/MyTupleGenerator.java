@@ -1,8 +1,18 @@
 package internal.database;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+
+import org.apache.commons.math3.util.Pair;
+
 public class MyTupleGenerator {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		TupleGenerator test = new TupleGeneratorImpl();
 		
@@ -54,8 +64,8 @@ public class MyTupleGenerator {
 				"String String String String", "url", new String[][] {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" }});
 		
-		test.addRelSchema("B_COMMENT", "ipAddress PostUrl TextStr",
-				"String String String", "ipAddress PostUrl TextStr", new String[][] {
+		test.addRelSchema("B_COMMENT", "ipAddress PostUrl TextStr Timestamp",
+				"String String String String", "ipAddress PostUrl TextStr", new String[][] {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" },
 				{ "PostUrl", "B_POST", "url" }});
 		
@@ -67,8 +77,8 @@ public class MyTupleGenerator {
 				"String String String String", "url", new String[][] {
 				{ "fId", "F_SOCIAL", "fId" }});
 		
-		test.addRelSchema("F_COMMENT", "fId PostUrl TextStr",
-				"String String String", "fId PostUrl TextStr", new String[][] {
+		test.addRelSchema("F_COMMENT", "fId PostUrl TextStr Timestamp",
+				"String String String String", "fId PostUrl TextStr", new String[][] {
 				{ "fId", "F_SOCIAL", "fId" },
 				{ "PostUrl", "F_POST", "url" }});
 		
@@ -80,8 +90,8 @@ public class MyTupleGenerator {
 				"String String String String", "url", new String[][] {
 				{ "gId", "G_SOCIAL", "gId" }});
 		
-		test.addRelSchema("G_COMMENT", "gId PostUrl TextStr",
-				"String String String", "gId PostUrl TextStr", new String[][] {
+		test.addRelSchema("G_COMMENT", "gId PostUrl TextStr Timestamp",
+				"String String String String", "gId PostUrl TextStr", new String[][] {
 				{ "gId", "G_SOCIAL", "gId" },
 				{ "PostUrl", "G_POST", "url" }});
 		
@@ -99,230 +109,280 @@ public class MyTupleGenerator {
 		
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
-		int tups[] = new int[] { 2, 10, 2, 10, 12, 50, 2, 10, 10, 50, 5, 10, 20, 5, 10, 20, 5, 10, 20, 5, 20, 20};
+		int tups[] = new int[] { 2000, 10000, 2000, 10000, 12000, 10000, 2000, 10000, 10000, 10000, 5000, 10000, 20000, 5000, 10000, 10000, 5000, 10000, 10000, 5000, 30000, 30000};
 		
 		Comparable[][][] resultTest = test.generate(tups);
 		
 		int index = 0;
 		
 		//PRODUCT_CAT
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (Name) VALUES ('%s')\n", tables[index], resultTest[index][i][0]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//PRODUCT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (Id, Name, Category) VALUES ('%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//STORE_CAT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (Name) VALUES ('%s')\n", tables[index], resultTest[index][i][0]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//STORE
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String zip = generateZip();
+			String insertStr = String.format("insert into %s (Id, Address, ZipCode, Category) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], zip, resultTest[index][i][3]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//CUSTOMER
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			
+			int age = generateAge();
+			String zip = generateZip();
+			String gender = generateGender();
+			
+			String insertStr = String.format("insert into %s (Id, Gender, Age, Address, ZipCode) VALUES ('%s', '%s', %d, '%s', '%s')\n", tables[index], resultTest[index][i][0], gender, age, resultTest[index][i][3], zip);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//PRICING
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (ProdId, StoreId, Price, Stock) VALUES ('%s', '%s', %d.99, %d)\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], (Integer)resultTest[index][i][2] % 139, (Integer)resultTest[index][i][3] % 199);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;		
 		
-		System.out.println("-----------------------------------------");
 		//SHIPMENT_CAT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (Name) VALUES ('%s')\n", tables[index], resultTest[index][i][0]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//SHIPMENT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (Category, ProdId, StoreId, Price) VALUES ('%s', '%s', '%s', %d.49)\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], (Integer)resultTest[index][i][3] % 19);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//PROMOTION
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			Pair<String, String> dates = generatePromotionDate();
+			int discount = generateDiscount();
+			String insertStr = String.format("insert into %s (Id, PromoCode, ShipmentCat, ProdId, StoreId, Discount, StartDate, EndDate) VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], resultTest[index][i][3],
+					resultTest[index][i][4], discount, dates.getFirst(), dates.getSecond());
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//PURCHASE
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (CustId, ProdId, StoreId, PromoId, ShipmentCat, Feedback, Payment, Timestamp) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d.99, '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], resultTest[index][i][3], resultTest[index][i][4], resultTest[index][i][5], (Integer)resultTest[index][i][6] % 139, date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//B_SOCIAL
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (ipAddress, CustId) VALUES ('%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//B_POST
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (url, ipAddress, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//B_COMMENT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (ipAddress, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//F_SOCIAL
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (fId, CustId) VALUES ('%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//F_POST
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (url, fId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//F_COMMENT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (fId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//G_SOCIAL
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (gId, CustId) VALUES ('%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//G_POST
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (url, gId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//G_COMMENT
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (gId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//T_SOCIAL
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String insertStr = String.format("insert into %s (tId, CustId) VALUES ('%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1]);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//TWEET
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (tId, TextStr, Timestamp) VALUES ('%s', '%s', '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
 		
-		System.out.println("-----------------------------------------");
 		//G_TREND
+		bw = new BufferedWriter(new FileWriter(new File(index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			for (int j = 0; j<resultTest[index][i].length; j++){
-				System.out.print(resultTest[index][i][j] + " ");
-			}
-			System.out.println();
+			String date = generateSingleDate();
+			String insertStr = String.format("insert into %s (gtId, Word, City, Country, Hits, Timestamp) VALUES ('%s', '%s', '%s', '%s', %d, '%s')\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], resultTest[index][i][3], (Integer)resultTest[index][i][4] % (7919 * 1000), date);
+			bw.write(insertStr);
 		}
+		bw.close();
 		index++;
+	}
+
+	private static String generateSingleDate() {
+		Random rand = new Random();
+		int randDif = rand.nextInt((int) 1.728e+9);
+		Date start = new Date(Math.abs(System.currentTimeMillis() - (long)randDif * 30));
+		String date_format_start = "yyyy-MM-dd HH:mm:ss";
+		String startStr = new SimpleDateFormat(date_format_start).format(start);
+		return startStr;
+	}
+
+	private static int generateDiscount() {
+		Random rand = new Random();
+		return (rand.nextInt(8) + 1) * 5;
+	}
+
+	private static Pair<String, String> generatePromotionDate() {
+		Random rand = new Random();
+		int randDif = rand.nextInt((int) 1.728e+9);
+		int promDuration = rand.nextInt((int) 2.592e+9);
+		Date start = new Date(Math.abs(System.currentTimeMillis() - (long)randDif * 30));
+		Date end = new Date(start.getTime() + promDuration);
+		String date_format_start = "yyyy-MM-dd 00:00:00";
+		String date_format_end = "yyyy-MM-dd 23:59:59";
+		String startStr = new SimpleDateFormat(date_format_start).format(start);
+		String endStr = new SimpleDateFormat(date_format_end).format(end);
+		return new Pair<String, String>(startStr, endStr);
+	}
+
+	private static int generateAge() {
+		Random rand = new Random();
+		int age = -1;
+		while(age < 18){
+			age = rand.nextInt(80);
+		}
+		return age;
+	}
+
+	private static String generateGender() {
+		Random rand = new Random();
+		
+		if (rand.nextInt(100) > 44){
+			return "M";
+		}else{
+			return "F";
+		}
+		
+	}
+
+	private static String generateZip() {
+		Random rand = new Random();
+		String zip = "" + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10); 
+		return zip;
 	}
 
 }
