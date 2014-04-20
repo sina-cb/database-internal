@@ -8,6 +8,11 @@ package internal.database;
 
 import static java.lang.System.out;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /*******************************************************************************
@@ -141,6 +146,21 @@ public class TupleGeneratorImpl implements TupleGenerator {
 									subResult[j][k] = sVal;
 									pKeyValues.add(sVal);
 									break;
+								case "PCatName":
+									sVal = generatePCatName();
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								case "SCatName":
+									sVal = generateSCatName();
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								case "ShipCatName":
+									sVal = generateShipCatName();
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
 								default:
 									for (sVal = attribute[k]
 											+ rand.nextInt(max); pKeyValues
@@ -267,6 +287,21 @@ public class TupleGeneratorImpl implements TupleGenerator {
 										subResult[j][k] = sVal;
 										pKeyValues.add(sVal);
 										break;
+									case "PCatName":
+										sVal = generatePCatName();
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									case "SCatName":
+										sVal = generateSCatName();
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									case "ShipCatName":
+										sVal = generateShipCatName();
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
 									default:
 										for (sVal = attribute[k]
 												+ rand.nextInt(max); pKeyValues
@@ -336,6 +371,60 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		return tempResult;
 	} // generate
 
+	private String generateSCatName() {
+		BufferedReader br;
+		String result = "";
+		try {
+			br = new BufferedReader(new FileReader(new File("StoreCatNames.txt")));
+			for (int i = 0; i <= SCatNameIndex; i++) {
+				result = br.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		SCatNameIndex++;
+		return result;
+	}
+	
+	private String generateShipCatName() {
+		BufferedReader br;
+		String result = "";
+		try {
+			br = new BufferedReader(new FileReader(new File("ShipCatNames.txt")));
+			for (int i = 0; i <= ShipCatNameIndex; i++) {
+				result = br.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ShipCatNameIndex++;
+		return result;
+	}
+
+	private String generatePCatName() {
+		BufferedReader br;
+		String result = "";
+		try {
+			br = new BufferedReader(new FileReader(new File("ProductCatNames.txt")));
+			for (int i = 0; i <= PCatNameIndex; i++) {
+				result = br.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		PCatNameIndex++;
+		return result;
+	}
+
 	private static String generateIP() {
 		Random rand = new Random();
 		int num1 = rand.nextInt(256);
@@ -347,5 +436,9 @@ public class TupleGeneratorImpl implements TupleGenerator {
 	}
 	
 	int max = Integer.MAX_VALUE;
+	
+	static int PCatNameIndex = 0;
+	static int SCatNameIndex = 0;
+	static int ShipCatNameIndex = 0;
 	
 } // TestGeneratorImpl class

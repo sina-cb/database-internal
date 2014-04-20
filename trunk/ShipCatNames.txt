@@ -1,0 +1,12 @@
+USPS - Expedited
+USPS - Priority
+USPS - Standard
+UPS - Expedited
+UPS - Priority
+UPS - Standard
+TNT - Expedited
+TNT - Priority
+TNT - Standard
+DHL - Expedited
+DHL - Priority
+DHL - Standard
