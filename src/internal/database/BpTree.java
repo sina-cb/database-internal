@@ -412,7 +412,7 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 						wedge(key, ref, n, i);
 						inserted = true;
 						break;
-					}else if (key.compareTo(n.key[i]) == 0){
+					}else if (key.compareTo(n.key[i]) == 0 ){
 						out.println("BpTree:insert: attempt to insert duplicate key = " + key);
 					}
 				}
@@ -498,7 +498,7 @@ public class BpTree<K extends Comparable<K>, V> extends AbstractMap<K, V>
 					wedge(key, (V) rightRef, parent, i);
 					inserted = true;
 					break;
-				}else if (key.compareTo(parent.key[i]) == 0){
+				}else if (key.compareTo(parent.key[i]) == 0 ){
 					out.println("BpTree:insert: attempt to insert duplicate key = " + key);
 				}
 			}
