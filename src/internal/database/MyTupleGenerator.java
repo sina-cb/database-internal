@@ -59,7 +59,8 @@ public class MyTupleGenerator {
 		test.addRelSchema("PURCHASE", "CustId ProdId StoreId PromoId ShipCategory Feedback Payment Timestamp",
 				"String String String String String Integer Integer String", "CustId ProdId StoreId", new String[][] {
 				{ "PromoId", "PROMOTION", "PromoId" },
-				{ "ProdId StoreId ShipCategory", "SHIPMENT", "ProdId StoreId ShipCategory" }});
+				{ "ProdId StoreId ShipCategory", "SHIPMENT", "ProdId StoreId ShipCategory" },
+				{ "CustId", "CUSTOMER", "CustId" }});
 		
 		test.addRelSchema("B_SOCIAL", "ipAddress CustId",
 				"String String", "ipAddress", new String[][] {
@@ -115,7 +116,7 @@ public class MyTupleGenerator {
 		int nos = 20;
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
-		int tups[] = new int[] { 146 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
+		int tups[] = new int[] { 146 /*ProdCat*/, 3612 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
 				nos * 10 /*Promotion*/, nos * 1000 /*Purchase*/, nos * 10 /*B_Social*/, nos * 20 /*B_POST*/, nos * 30 /*B_COMMENT*/, nos * 30 /*F_SOCIAL*/, nos * 50 /*F_POST*/, nos * 100 /*F_COMMENT*/, 
 				nos * 10 /*G_SOCIAL*/, nos * 20 /*G_POST*/, nos * 30 /*G_COMMENT*/, nos * 10 /*T_SOCIAL*/, nos * 100 /*TWEET*/, 5000 /*G_TREND*/};
 		
@@ -421,6 +422,11 @@ public class MyTupleGenerator {
 		for (int i = 0; i <= prodNameIndex; i++) {
 			result = br.readLine();
 		}
+		
+		if (result.compareTo("") == 0){
+			System.out.println("ERROR");
+		}
+		
 		br.close();
 		prodNameIndex++;
 		return result;
@@ -428,8 +434,8 @@ public class MyTupleGenerator {
 
 	private static String generateWord() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Word.txt")));
-		int line = rand.nextInt(999);
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Product Names.txt")));
+		int line = rand.nextInt(3600);
 		for (int i = 0; i < line; i++) {
 			br.readLine();
 		}
