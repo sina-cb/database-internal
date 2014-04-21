@@ -105,7 +105,8 @@ public class MyTupleGenerator {
 				{ "CustId", "CUSTOMER", "CustId" }});
 		
 		test.addRelSchema("TWEET", "tId TextStr Timestamp",
-				"String String String", "tId Timestamp", null);
+				"String String String", "tId Timestamp", new String[][] {
+				{ "tId", "T_SOCIAL", "tId" }});
 		
 		test.addRelSchema("G_TREND", "gtId Word City Hits Timestamp",
 				"String String String Integer String", "gtId", null);
