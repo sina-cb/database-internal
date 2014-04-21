@@ -161,6 +161,36 @@ public class TupleGeneratorImpl implements TupleGenerator {
 									subResult[j][k] = sVal;
 									pKeyValues.add(sVal);
 									break;
+								case "bUrl":
+									for (sVal = attribute[k]
+											+ rand.nextInt(max); pKeyValues
+											.contains(sVal); sVal = attribute[k]
+											+ rand.nextInt(max))
+										;
+									sVal = generateURL(sVal, "B");
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								case "fUrl":
+									for (sVal = attribute[k]
+											+ rand.nextInt(max); pKeyValues
+											.contains(sVal); sVal = attribute[k]
+											+ rand.nextInt(max))
+										;
+									sVal = generateURL(sVal, "F");
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
+								case "gUrl":
+									for (sVal = attribute[k]
+											+ rand.nextInt(max); pKeyValues
+											.contains(sVal); sVal = attribute[k]
+											+ rand.nextInt(max))
+										;
+									sVal = generateURL(sVal, "G");
+									subResult[j][k] = sVal;
+									pKeyValues.add(sVal);
+									break;
 								default:
 									for (sVal = attribute[k]
 											+ rand.nextInt(max); pKeyValues
@@ -302,6 +332,36 @@ public class TupleGeneratorImpl implements TupleGenerator {
 										subResult[j][k] = sVal;
 										pKeyValues.add(sVal);
 										break;
+									case "bUrl":
+										for (sVal = attribute[k]
+												+ rand.nextInt(max); pKeyValues
+												.contains(sVal); sVal = attribute[k]
+												+ rand.nextInt(max))
+											;
+										sVal = generateURL(sVal, "B");
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									case "fUrl":
+										for (sVal = attribute[k]
+												+ rand.nextInt(max); pKeyValues
+												.contains(sVal); sVal = attribute[k]
+												+ rand.nextInt(max))
+											;
+										sVal = generateURL(sVal, "F");
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
+									case "gUrl":
+										for (sVal = attribute[k]
+												+ rand.nextInt(max); pKeyValues
+												.contains(sVal); sVal = attribute[k]
+												+ rand.nextInt(max))
+											;
+										sVal = generateURL(sVal, "G");
+										subResult[j][k] = sVal;
+										pKeyValues.add(sVal);
+										break;
 									default:
 										for (sVal = attribute[k]
 												+ rand.nextInt(max); pKeyValues
@@ -375,7 +435,7 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		BufferedReader br;
 		String result = "";
 		try {
-			br = new BufferedReader(new FileReader(new File("StoreCatNames.txt")));
+			br = new BufferedReader(new FileReader(new File("Data Samples\\StoreCatNames.txt")));
 			for (int i = 0; i <= SCatNameIndex; i++) {
 				result = br.readLine();
 			}
@@ -393,7 +453,7 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		BufferedReader br;
 		String result = "";
 		try {
-			br = new BufferedReader(new FileReader(new File("ShipCatNames.txt")));
+			br = new BufferedReader(new FileReader(new File("Data Samples\\ShipCatNames.txt")));
 			for (int i = 0; i <= ShipCatNameIndex; i++) {
 				result = br.readLine();
 			}
@@ -411,7 +471,7 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		BufferedReader br;
 		String result = "";
 		try {
-			br = new BufferedReader(new FileReader(new File("ProductCatNames.txt")));
+			br = new BufferedReader(new FileReader(new File("Data Samples\\ProductCatNames.txt")));
 			for (int i = 0; i <= PCatNameIndex; i++) {
 				result = br.readLine();
 			}
@@ -433,6 +493,26 @@ public class TupleGeneratorImpl implements TupleGenerator {
 		int num4 = rand.nextInt(256);
 		
 		return (num1 + "." + num2 + "." + num3 + "." + num4);
+	}
+	
+	private static String generateURL(String comparable, String type) {
+		String url = "";
+		
+		switch (type) {
+		case "B":
+			url = "http://www.ourblog.com/posts/" + comparable.replace("bUrl", "");
+			break;
+		case "F":
+			url = "https://www.facebook.com/posts/" + comparable.replace("fUrl", "");
+			break;
+		case "G":
+			url = "https://plus.google.com/posts/" + comparable.replace("gUrl", "");
+			break;
+		default:
+			break;
+		}
+		
+		return url;
 	}
 	
 	int max = Integer.MAX_VALUE;

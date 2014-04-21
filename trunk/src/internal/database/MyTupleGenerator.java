@@ -7,7 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
@@ -63,40 +65,40 @@ public class MyTupleGenerator {
 				"String String", "ipAddress", new String[][] {
 				{ "CustId", "CUSTOMER", "CustId" }});
 		
-		test.addRelSchema("B_POST", "url ipAddress TextStr Timestamp",
-				"String String String String", "url", new String[][] {
+		test.addRelSchema("B_POST", "bUrl ipAddress TextStr Timestamp",
+				"String String String String", "bUrl", new String[][] {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" }});
 		
 		test.addRelSchema("B_COMMENT", "ipAddress PostUrl TextStr Timestamp",
 				"String String String String", "ipAddress PostUrl Timestamp", new String[][] {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" },
-				{ "PostUrl", "B_POST", "url" }});
+				{ "PostUrl", "B_POST", "bUrl" }});
 		
 		test.addRelSchema("F_SOCIAL", "fId CustId",
 				"String String", "fId", new String[][] {
 				{ "CustId", "CUSTOMER", "CustId" }});
 		
-		test.addRelSchema("F_POST", "url fId TextStr Timestamp",
-				"String String String String", "url", new String[][] {
+		test.addRelSchema("F_POST", "fUrl fId TextStr Timestamp",
+				"String String String String", "fUrl", new String[][] {
 				{ "fId", "F_SOCIAL", "fId" }});
 		
 		test.addRelSchema("F_COMMENT", "fId PostUrl TextStr Timestamp",
 				"Str+ing String String String", "fId PostUrl Timestamp", new String[][] {
 				{ "fId", "F_SOCIAL", "fId" },
-				{ "PostUrl", "F_POST", "url" }});
+				{ "PostUrl", "F_POST", "fUrl" }});
 		
 		test.addRelSchema("G_SOCIAL", "gId CustId",
 				"String String", "gId", new String[][] {
 				{ "CustId", "CUSTOMER", "CustId" }});
 		
-		test.addRelSchema("G_POST", "url gId TextStr Timestamp",
-				"String String String String", "url", new String[][] {
+		test.addRelSchema("G_POST", "gUrl gId TextStr Timestamp",
+				"String String String String", "gUrl", new String[][] {
 				{ "gId", "G_SOCIAL", "gId" }});
 		
 		test.addRelSchema("G_COMMENT", "gId PostUrl TextStr Timestamp",
 				"String String String String", "gId PostUrl Timestamp", new String[][] {
 				{ "gId", "G_SOCIAL", "gId" },
-				{ "PostUrl", "G_POST", "url" }});
+				{ "PostUrl", "G_POST", "gUrl" }});
 		
 		test.addRelSchema("T_SOCIAL", "tId CustId",
 				"String String", "tId", new String[][] {
@@ -109,10 +111,10 @@ public class MyTupleGenerator {
 				"String String String Integer String", "gtId", null);
 		
 		//Number of stores
-		int nos = 50;
+		int nos = 20;
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
-		int tups[] = new int[] { 150 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
+		int tups[] = new int[] { 146 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
 				nos * 10 /*Promotion*/, nos * 1000 /*Purchase*/, nos * 10 /*B_Social*/, nos * 20 /*B_POST*/, nos * 30 /*B_COMMENT*/, nos * 30 /*F_SOCIAL*/, nos * 50 /*F_POST*/, nos * 100 /*F_COMMENT*/, 
 				nos * 10 /*G_SOCIAL*/, nos * 20 /*G_POST*/, nos * 30 /*G_COMMENT*/, nos * 10 /*T_SOCIAL*/, nos * 100 /*TWEET*/, 5000 /*G_TREND*/};
 		
@@ -240,8 +242,7 @@ public class MyTupleGenerator {
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
 			String textStr = generateTextStr();
-			String url = generateURL((String)resultTest[index][i][0], "B");
-			String insertStr = String.format("insert into %s (url, ipAddress, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
+			String insertStr = String.format("insert into %s (url, ipAddress, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -272,8 +273,7 @@ public class MyTupleGenerator {
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
 			String textStr = generateTextStr();
-			String url = generateURL((String)resultTest[index][i][0], "F");
-			String insertStr = String.format("insert into %s (url, fId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
+			String insertStr = String.format("insert into %s (url, fId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -304,8 +304,7 @@ public class MyTupleGenerator {
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
 			String textStr = generateTextStr();
-			String url = generateURL((String)resultTest[index][i][0], "G");
-			String insertStr = String.format("insert into %s (url, gId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
+			String insertStr = String.format("insert into %s (url, gId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -367,30 +366,45 @@ public class MyTupleGenerator {
 		br.close();
 		bw.close();
 		index++;
-	}
+		
+		List<File> files = new ArrayList<>();
+		files.add(new File("SQLs\\0_PRODUCT_CAT.sql"));
+		files.add(new File("SQLs\\1_PRODUCT.sql"));
+		files.add(new File("SQLs\\2_STORE_CAT.sql"));
+		files.add(new File("SQLs\\3_STORE.sql"));
+		files.add(new File("SQLs\\4_CUSTOMER.sql"));
+		files.add(new File("SQLs\\5_PRICING.sql"));
+		files.add(new File("SQLs\\6_SHIPMENT_CAT.sql"));
+		files.add(new File("SQLs\\7_SHIPMENT.sql"));
+		files.add(new File("SQLs\\8_PROMOTION.sql"));
+		files.add(new File("SQLs\\9_PURCHASE.sql"));
+		files.add(new File("SQLs\\10_B_SOCIAL.sql"));
+		files.add(new File("SQLs\\11_B_POST.sql"));
+		files.add(new File("SQLs\\12_B_COMMENT.sql"));
+		files.add(new File("SQLs\\13_F_SOCIAL.sql"));
+		files.add(new File("SQLs\\14_F_POST.sql"));
+		files.add(new File("SQLs\\15_F_COMMENT.sql"));
+		files.add(new File("SQLs\\16_G_SOCIAL.sql"));
+		files.add(new File("SQLs\\17_G_POST.sql"));
+		files.add(new File("SQLs\\18_G_COMMENT.sql"));
+		files.add(new File("SQLs\\19_T_SOCIAL.sql"));
+		files.add(new File("SQLs\\20_TWEET.sql"));
+		files.add(new File("SQLs\\21_G_TREND.sql"));
+		files.add(new File("SQLs\\22_CITYZIP.sql"));
 
-	private static String generateURL(String comparable, String type) {
-		String url = "";
-		
-		switch (type) {
-		case "B":
-			url = "http://www.ourblog.com/posts/" + comparable.replace("url", "");
-			break;
-		case "F":
-			url = "https://www.facebook.com/posts/" + comparable.replace("url", "");
-			break;
-		case "G":
-			url = "https://plus.google.com/posts/" + comparable.replace("url", "");
-			break;
-		case "T":
-			url = "https://www.twitter.com/posts/" + comparable.replace("url", "");
-			break;
-		default:
-			break;
+		BufferedWriter bw2 = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + "All" + ".SQL")));
+		for (File file : files){
+			BufferedReader br2 = new BufferedReader(new FileReader(file));
+			line = br2.readLine();
+			while(line != null){
+				bw2.write(line + "\n");
+				line = br2.readLine();
+			}
+			
+			bw2.write("\n\n");
+			br2.close();
 		}
-		
-		
-		return url;
+		bw2.close();
 	}
 
 	static int prodNameIndex = 0;
