@@ -109,7 +109,7 @@ public class MyTupleGenerator {
 				"String String String Integer String", "gtId", null);
 		
 		//Number of stores
-		int nos = 1;
+		int nos = 50;
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
 		int tups[] = new int[] { 150 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
@@ -548,7 +548,7 @@ public class MyTupleGenerator {
 		}
 		br.close();
 		
-		index = rand.nextInt(3620) + 1;
+		index = rand.nextInt(3600);
 		br = new BufferedReader(new FileReader(new File("Data Samples\\Product Names.txt")));
 		String product = "";
 		for (int i = 0; i < index; i++){
@@ -556,6 +556,9 @@ public class MyTupleGenerator {
 		}
 		br.close();
 		
+		if (result.length() < 1){
+			result = "AAA BB  CCC";
+		}
 		index = rand.nextInt(result.length());
 		result = result.substring(0, index) + " " + product + " " + result.substring(index); 
 		
