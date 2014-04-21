@@ -223,7 +223,13 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (CustId, ProdId, StoreId, PromoId, ShipmentCat, Feedback, Payment, Timestamp) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d.99, '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], resultTest[index][i][3], resultTest[index][i][4], (Integer)resultTest[index][i][5] % 6, (Integer)resultTest[index][i][6] % 139, date);
+			String promo = (String) resultTest[index][i][3];
+			String insertStr = "";
+			if ((new Random()).nextInt(100) > 20){
+				insertStr = String.format("insert into %s (CustId, ProdId, StoreId, PromoId, ShipmentCat, Feedback, Payment, Timestamp) VALUES ('%s', '%s', '%s', NULL, '%s', %d, %d.99, '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], resultTest[index][i][4], (Integer)resultTest[index][i][5] % 6, (Integer)resultTest[index][i][6] % 139, date);
+			}else{
+				insertStr = String.format("insert into %s (CustId, ProdId, StoreId, PromoId, ShipmentCat, Feedback, Payment, Timestamp) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d.99, '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], promo, resultTest[index][i][4], (Integer)resultTest[index][i][5] % 6, (Integer)resultTest[index][i][6] % 139, date);
+			}
 			bw.write(insertStr);
 		}
 		bw.close();
