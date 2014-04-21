@@ -3,7 +3,6 @@ package internal.database;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,7 +68,7 @@ public class MyTupleGenerator {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" }});
 		
 		test.addRelSchema("B_COMMENT", "ipAddress PostUrl TextStr Timestamp",
-				"String String String String", "ipAddress PostUrl TextStr", new String[][] {
+				"String String String String", "ipAddress PostUrl Timestamp", new String[][] {
 				{ "ipAddress", "B_SOCIAL", "ipAddress" },
 				{ "PostUrl", "B_POST", "url" }});
 		
@@ -82,7 +81,7 @@ public class MyTupleGenerator {
 				{ "fId", "F_SOCIAL", "fId" }});
 		
 		test.addRelSchema("F_COMMENT", "fId PostUrl TextStr Timestamp",
-				"Str+ing String String String", "fId PostUrl TextStr", new String[][] {
+				"Str+ing String String String", "fId PostUrl Timestamp", new String[][] {
 				{ "fId", "F_SOCIAL", "fId" },
 				{ "PostUrl", "F_POST", "url" }});
 		
@@ -95,7 +94,7 @@ public class MyTupleGenerator {
 				{ "gId", "G_SOCIAL", "gId" }});
 		
 		test.addRelSchema("G_COMMENT", "gId PostUrl TextStr Timestamp",
-				"String String String String", "gId PostUrl TextStr", new String[][] {
+				"String String String String", "gId PostUrl Timestamp", new String[][] {
 				{ "gId", "G_SOCIAL", "gId" },
 				{ "PostUrl", "G_POST", "url" }});
 		
@@ -104,19 +103,18 @@ public class MyTupleGenerator {
 				{ "CustId", "CUSTOMER", "CustId" }});
 		
 		test.addRelSchema("TWEET", "tId TextStr Timestamp",
-				"String String String", "tId TextStr", null);
+				"String String String", "tId Timestamp", null);
 		
-		test.addRelSchema("G_TREND", "gtId Word City Country Hits Timestamp",
-				"String String String String Integer String", "gtId", null);
+		test.addRelSchema("G_TREND", "gtId Word City Hits Timestamp",
+				"String String String Integer String", "gtId", null);
 		
 		//Number of stores
-		int nos = 100;
-		
+		int nos = 1;
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
 		int tups[] = new int[] { 150 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
 				nos * 10 /*Promotion*/, nos * 1000 /*Purchase*/, nos * 10 /*B_Social*/, nos * 20 /*B_POST*/, nos * 30 /*B_COMMENT*/, nos * 30 /*F_SOCIAL*/, nos * 50 /*F_POST*/, nos * 100 /*F_COMMENT*/, 
-				nos * 10 /*G_SOCIAL*/, nos * 20 /*G_POST*/, nos * 30 /*G_COMMENT*/, nos * 10 /*T_SOCIAL*/, nos * 100 /*TWEET*/, 500 /*G_TREND*/};
+				nos * 10 /*G_SOCIAL*/, nos * 20 /*G_POST*/, nos * 30 /*G_COMMENT*/, nos * 10 /*T_SOCIAL*/, nos * 100 /*TWEET*/, 5000 /*G_TREND*/};
 		
 		Comparable[][][] resultTest = test.generate(tups);
 		
@@ -349,11 +347,24 @@ public class MyTupleGenerator {
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
 			String city = generateCity();
-			String country = generateCountry();
 			String word = generateWord();
-			String insertStr = String.format("insert into %s (Id, Word, City, Country, Hits, Timestamp) VALUES ('%s', '%s', '%s', '%s', %d, '%s');\n", tables[index], resultTest[index][i][0], word, city, country, (Integer)resultTest[index][i][4] % (7919 * 1000), date);
+			String insertStr = String.format("insert into %s (Id, Word, City, Hits, Timestamp) VALUES ('%s', '%s', '%s', %d, '%s');\n", tables[index], resultTest[index][i][0], word, city, (Integer)resultTest[index][i][3] % (7919 * 1000), date);
 			bw.write(insertStr);
 		}
+		bw.close();
+		index++;
+
+		//G_TREND
+		String tableNameZipCity = "CITYZIP";
+		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tableNameZipCity + ".SQL")));
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\zip_code_database.csv")));
+		String line = br.readLine();
+		while(line != null){
+			String insertStr = String.format("insert into %s (ZipCode, CityName) VALUES ('%s', '%s');\n", tableNameZipCity, line.split(",")[0], line.split(",")[1]);
+			bw.write(insertStr);
+			line = br.readLine();
+		}
+		br.close();
 		bw.close();
 		index++;
 	}
@@ -401,27 +412,29 @@ public class MyTupleGenerator {
 		for (int i = 0; i < line; i++) {
 			br.readLine();
 		}
-		return br.readLine();
-	}
-
-	private static String generateCountry() throws Exception {
-		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Country.txt")));
-		int line = rand.nextInt(999);
-		for (int i = 0; i < line; i++) {
-			br.readLine();
-		}
-		return br.readLine();
+		String lineStr = br.readLine();
+		br.close();
+		return lineStr;
 	}
 
 	private static String generateCity() throws Exception {
 		Random rand = new Random();
-		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\City.txt")));
-		int line = rand.nextInt(999);
-		for (int i = 0; i < line; i++) {
-			br.readLine();
+		int index = rand.nextInt(2047 - 2);
+		
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\zip_code_database.csv")));
+		String result = "";
+		for (int i = 0; i < index; i++){
+			result = br.readLine();
 		}
-		return br.readLine();
+		br.close();
+		try{
+			return result.split(",")[1];			
+		}catch (ArrayIndexOutOfBoundsException e){
+			br = new BufferedReader(new FileReader(new File("Data Samples\\zip_code_database.csv")));
+			result = br.readLine();
+			return result.split(",")[1];
+		}
+		
 	}
 
 	private static String generateAddress() throws Exception {
@@ -431,7 +444,9 @@ public class MyTupleGenerator {
 		for (int i = 0; i < line; i++) {
 			br.readLine();
 		}
-		return br.readLine();
+		String lineStr = br.readLine();
+		br.close();
+		return lineStr;
 	}
 
 	private static String generateName(String gender) throws Exception {
@@ -508,15 +523,23 @@ public class MyTupleGenerator {
 		
 	}
 
-	private static String generateZip() {
+	private static String generateZip() throws Exception {
 		Random rand = new Random();
-		String zip = "" + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10) + rand.nextInt(10); 
-		return zip;
+		int index = rand.nextInt(2047 - 2);
+		
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\zip_code_database.csv")));
+		String result = "";
+		for (int i = 0; i < index; i++){
+			result = br.readLine();
+		}
+		br.close();
+		
+		return result.split(",")[0];
 	}
 
 	private static String generateTextStr() throws Exception {
 		Random rand = new Random();
-		int index = rand.nextInt(10000) + 1;
+		int index = rand.nextInt(10000);
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\TextStr.txt")));
 		String result = "";
