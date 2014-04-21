@@ -109,13 +109,14 @@ public class MyTupleGenerator {
 		test.addRelSchema("G_TREND", "gtId Word City Country Hits Timestamp",
 				"String String String String Integer String", "gtId", null);
 		
-		
+		//Number of stores
+		int nos = 100;
 		
 		String[] tables = { "PRODUCT_CAT", "PRODUCT", "STORE_CAT", "STORE", "CUSTOMER", "PRICING", "SHIPMENT_CAT", "SHIPMENT", "PROMOTION", "PURCHASE",
 							"B_SOCIAL", "B_POST", "B_COMMENT", "F_SOCIAL", "F_POST", "F_COMMENT", "G_SOCIAL", "G_POST", "G_COMMENT", "T_SOCIAL", "TWEET", "G_TREND"};
-		int tups[] = new int[] { 150 /*ProdCat*/, 100 /*Product*/, 24 /*StoreCat*/, 100 /*Store*/, 120 /*Customer*/, 100 /*Pricing*/, 12 /*ShipmentCat*/, 100 /*Shipment*/, 
-				100 /*Promotion*/, 100 /*Purchase*/, 50 /*B_Social*/, 100 /*B_POST*/, 200 /*B_COMMENT*/, 50 /*F_SOCIAL*/, 100 /*F_POST*/, 100 /*F_COMMENT*/, 50 /*G_SOCIAL*/, 
-				100 /*G_POST*/, 100 /*G_COMMENT*/, 50 /*T_SOCIAL*/, 300 /*TWEET*/, 300 /*G_TREND*/};
+		int tups[] = new int[] { 150 /*ProdCat*/, 3620 /*Product*/, 24 /*StoreCat*/, nos /*Store*/, nos * 50 /*Customer*/, nos * 100 /*Pricing*/, 12 /*ShipmentCat*/, nos * 100 /*Shipment*/, 
+				nos * 10 /*Promotion*/, nos * 1000 /*Purchase*/, nos * 10 /*B_Social*/, nos * 20 /*B_POST*/, nos * 30 /*B_COMMENT*/, nos * 30 /*F_SOCIAL*/, nos * 50 /*F_POST*/, nos * 100 /*F_COMMENT*/, 
+				nos * 10 /*G_SOCIAL*/, nos * 20 /*G_POST*/, nos * 30 /*G_COMMENT*/, nos * 10 /*T_SOCIAL*/, nos * 100 /*TWEET*/, 500 /*G_TREND*/};
 		
 		Comparable[][][] resultTest = test.generate(tups);
 		
@@ -133,7 +134,8 @@ public class MyTupleGenerator {
 		//PRODUCT
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			String insertStr = String.format("insert into %s (Id, Name, Category) VALUES ('%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2]);
+			String prodName = generateProdName();
+			String insertStr = String.format("insert into %s (Id, Name, Category) VALUES ('%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], prodName, resultTest[index][i][2]);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -178,7 +180,8 @@ public class MyTupleGenerator {
 		//PRICING
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			String insertStr = String.format("insert into %s (ProdId, StoreId, Price, Stock) VALUES ('%s', '%s', %d.99, %d);\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], (Integer)resultTest[index][i][2] % 139, (Integer)resultTest[index][i][3] % 199);
+			int price = (new Random()).nextInt(10);
+			String insertStr = String.format("insert into %s (ProdId, StoreId, Price, Stock) VALUES ('%s', '%s', %d.%d9, %d);\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], (Integer)resultTest[index][i][2] % 139, price, (Integer)resultTest[index][i][3] % 199);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -196,7 +199,8 @@ public class MyTupleGenerator {
 		//SHIPMENT
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
-			String insertStr = String.format("insert into %s (Category, ProdId, StoreId, Price) VALUES ('%s', '%s', '%s', %d.49);\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], (Integer)resultTest[index][i][3] % 19);
+			int price = (new Random()).nextInt(10);
+			String insertStr = String.format("insert into %s (Category, ProdId, StoreId, Price) VALUES ('%s', '%s', '%s', %d.%d9);\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], (Integer)resultTest[index][i][3] % 19, price);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -237,7 +241,9 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (url, ipAddress, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String url = generateURL((String)resultTest[index][i][0], "B");
+			String insertStr = String.format("insert into %s (url, ipAddress, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -247,7 +253,8 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (ipAddress, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String insertStr = String.format("insert into %s (ipAddress, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -266,7 +273,9 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (url, fId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String url = generateURL((String)resultTest[index][i][0], "F");
+			String insertStr = String.format("insert into %s (url, fId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -276,7 +285,8 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (fId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String insertStr = String.format("insert into %s (fId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -295,7 +305,9 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (url, gId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String url = generateURL((String)resultTest[index][i][0], "G");
+			String insertStr = String.format("insert into %s (url, gId, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], url, resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -305,7 +317,8 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (gId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], resultTest[index][i][2], date);
+			String textStr = generateTextStr();
+			String insertStr = String.format("insert into %s (gId, PostUrl, TextStr, Timestamp) VALUES ('%s', '%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -324,7 +337,8 @@ public class MyTupleGenerator {
 		bw = new BufferedWriter(new FileWriter(new File("SQLs\\" + index + "_" + tables[index] + ".SQL")));
 		for(int i = 0; i<resultTest[index].length; i++){
 			String date = generateSingleDate();
-			String insertStr = String.format("insert into %s (tId, TextStr, Timestamp) VALUES ('%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], resultTest[index][i][1], date);
+			String textStr = generateTextStr();
+			String insertStr = String.format("insert into %s (tId, TextStr, Timestamp) VALUES ('%s', '%s', '%s');\n", tables[index], resultTest[index][i][0], textStr, date);
 			bw.write(insertStr);
 		}
 		bw.close();
@@ -342,6 +356,42 @@ public class MyTupleGenerator {
 		}
 		bw.close();
 		index++;
+	}
+
+	private static String generateURL(String comparable, String type) {
+		String url = "";
+		
+		switch (type) {
+		case "B":
+			url = "http://www.ourblog.com/posts/" + comparable.replace("url", "");
+			break;
+		case "F":
+			url = "https://www.facebook.com/posts/" + comparable.replace("url", "");
+			break;
+		case "G":
+			url = "https://plus.google.com/posts/" + comparable.replace("url", "");
+			break;
+		case "T":
+			url = "https://www.twitter.com/posts/" + comparable.replace("url", "");
+			break;
+		default:
+			break;
+		}
+		
+		
+		return url;
+	}
+
+	static int prodNameIndex = 0;
+	private static String generateProdName() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\Product Names.txt")));
+		String result = "";
+		for (int i = 0; i <= prodNameIndex; i++) {
+			result = br.readLine();
+		}
+		br.close();
+		prodNameIndex++;
+		return result;
 	}
 
 	private static String generateWord() throws Exception {
@@ -464,4 +514,28 @@ public class MyTupleGenerator {
 		return zip;
 	}
 
+	private static String generateTextStr() throws Exception {
+		Random rand = new Random();
+		int index = rand.nextInt(10000) + 1;
+		
+		BufferedReader br = new BufferedReader(new FileReader(new File("Data Samples\\TextStr.txt")));
+		String result = "";
+		for (int i = 0; i < index; i++){
+			result = br.readLine();
+		}
+		br.close();
+		
+		index = rand.nextInt(3620) + 1;
+		br = new BufferedReader(new FileReader(new File("Data Samples\\Product Names.txt")));
+		String product = "";
+		for (int i = 0; i < index; i++){
+			product = br.readLine();
+		}
+		br.close();
+		
+		index = rand.nextInt(result.length());
+		result = result.substring(0, index) + " " + product + " " + result.substring(index); 
+		
+		return result;
+	}
 }
