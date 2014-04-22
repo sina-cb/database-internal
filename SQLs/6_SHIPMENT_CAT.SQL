@@ -1,0 +1,12 @@
+insert into SHIPMENT_CAT (Name) VALUES ('Overnight');
+insert into SHIPMENT_CAT (Name) VALUES ('Same Day');
+insert into SHIPMENT_CAT (Name) VALUES ('Next Business Day');
+insert into SHIPMENT_CAT (Name) VALUES ('3Day');
+insert into SHIPMENT_CAT (Name) VALUES ('2Day');
+insert into SHIPMENT_CAT (Name) VALUES ('Express');
+insert into SHIPMENT_CAT (Name) VALUES ('Regular');
+insert into SHIPMENT_CAT (Name) VALUES ('Ground-regular');
+insert into SHIPMENT_CAT (Name) VALUES ('Ground-express');
+insert into SHIPMENT_CAT (Name) VALUES ('Air-regular');
+insert into SHIPMENT_CAT (Name) VALUES ('Air-express');
+insert into SHIPMENT_CAT (Name) VALUES ('Expedited');
